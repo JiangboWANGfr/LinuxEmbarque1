@@ -1,0 +1,2070 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+	<meta charset="utf-8">
+		<title>神经网络加速器与SOC芯片设计（十九）-FPGA上板演示，Roofline模型与能效评估_教程视频- 与非网</title>
+	<meta name="applicable-device" content="pc">
+		<meta name="mobile-agent" content="format=html5;url=https://m.eefocus.com/course/1057545.html">
+	<link rel="alternate" media="only screen and (max-width: 640px)" href="https://m.eefocus.com/course/1057545.html">
+			<meta name="keywords" content="神经网络加速器与SOC芯片设计（十九）-FPGA上板演示，Roofline模型与能效评估">
+						<meta property="bytedance:published_time" content="2019-11-28T10:53:56+08:00">
+		<meta property="bytedance:updated_time" content="2019-11-28T10:53:56+08:00">
+	
+	<link rel="shortcut icon" href="https://assets.eefcdn.com/app/themes/eefocus/dist/images/favicon.ico">
+	<link href="https://static.semidata.info/www.eefocus.com/css/video-js.min.css" rel="stylesheet" />
+	<link rel="stylesheet" href="https://assets.eefcdn.com/app/themes/eefocus/dist/libs/layui/css/layui-2.7.6.css">
+
+	
+	<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-NNQBV37');</script>
+<!-- End Google Tag Manager --><link rel='stylesheet' id='entrys/course/index/0-css' href='https://assets.eefcdn.com/app/themes/eefocus/dist/css/vendor-ef3ee383f12991a6.css' media='all' />
+<link rel='stylesheet' id='entrys/course/index/1-css' href='https://assets.eefcdn.com/app/themes/eefocus/dist/css/entrys/course/index-3f494ef38b7bb79a.css' media='all' />
+<script src='https://static.semidata.info/www.eefocus.com/js/jquery.min.js' id='jquery-js'></script>
+
+</head>
+
+<body class="wp-embed-responsive">
+	<iframe id='iframe-auto-login' style="display:none" src="/passport/check"></iframe>
+<script>
+	window.eef_post={"id":1057545,"post_title":"\u795e\u7ecf\u7f51\u7edc\u52a0\u901f\u5668\u4e0eSOC\u82af\u7247\u8bbe\u8ba1\uff08\u5341\u4e5d\uff09-FPGA\u4e0a\u677f\u6f14\u793a\uff0cRoofline\u6a21\u578b\u4e0e\u80fd\u6548\u8bc4\u4f30","post_type":"eef_pt_course","post_type_cn":"\u8bfe\u7a0b","tax_application":[{"term_id":63941,"name":"\u4eba\u5de5\u667a\u80fd","slug":"ai","term_group":0,"term_taxonomy_id":63941,"taxonomy":"eef_tax_application","description":"","parent":0,"count":3425,"filter":"raw"}],"tax_technology":[],"tax_technology_l2":[],"tax_application_l2":[]};
+</script>
+
+<script type="text/javascript" src="https://assets.eefcdn.com/app/themes/eefocus/dist/libs/jing-track.js"></script>
+
+	<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NNQBV37"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->	<div id="header-container">
+		<div class="header-ad">
+		<div class="header-ad-fix">
+			<div class="section-adbox ox-970x90">
+		<ins data-revive-zoneid="747" data-revive-id="938569507b5eec61bf3aa452464fb480"></ins>
+	<script async src="//gg.eefocus.com/www/delivery/asyncjs.php"></script>
+	</div>		</div>
+	</div>
+		<div class="header-link">
+	<div class="container">
+		<div class="header-link-container">
+			<div class="site">
+				<a target="_blank" href="//cn.supplyframe.com/?utm_source=eefocus&utm_medium=referral&utm_campaign=top" title="Supplyframe｜四方维" rel="nofollow">
+					<i class="iconfont icon-logo-Supplyframe"></i>
+					Supplyframe
+				</a>
+				<a target="_blank" href="//www.bom2buy.com/xq?utm_source=eefocus&utm_medium=referral&utm_campaign=top" title="智能化BOM分析，数字化询报价" rel="nofollow">
+					<i class="iconfont icon-a-logo-SupplyframeXQ"></i>
+					Supplyframe XQ
+				</a>
+				<a target="_blank" href="//www.datasheet5.com/?utm_source=eefocus&utm_medium=referral&utm_campaign=top" title="Datasheet5｜集成电路查询网" rel="nofollow">
+					<i class="iconfont icon-logo-datasheet5"></i>
+					Datasheet5
+				</a>
+				<a target="_blank" href="//componentsearchengine.com/?utm_source=eefocus&utm_medium=referral&utm_campaign=top" title="免费获取原理图符号、PCB封装和3D模型" rel="nofollow">
+					<i class="iconfont icon-logo-findchips"></i>
+					Component Search Engine
+				</a>
+				<a target="_blank" href="//www.findchips.com/?utm_source=eefocus&utm_medium=referral&utm_campaign=top" title="Findchips｜findchips.com" rel="nofollow">
+					<i class="iconfont icon-logo-findchips"></i>
+					Findchips
+				</a>
+				<a target="_blank" href="//www.bom2buy.com/?utm_source=eefocus&utm_medium=referral&utm_campaign=top" title="电子元器件采购网｜bom2buy.com" rel="nofollow">
+					<i class="iconfont icon-logo-bom2buy"></i>
+					bom2buy
+				</a>
+				<a target="_blank" href="//www.eefocus.com/campaign/xcelerator/" title="Siemens Xcelerator" rel="nofollow">
+					<i class="iconfont icon-logo-Xcelerator"></i>
+					Siemens Xcelerator
+				</a>
+			</div>
+			<div class="qrcode">
+				<div class="show-qrcode-wechatweb">
+					关注我们
+					<div class="float-box-padding">
+						<div class="qrcode-container qrcode-wechatweb">
+							<div>
+								<img src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/followus.jpeg" alt="">
+								<span>扫码关注<br>获取工程师必备礼包<br>板卡试用/精品课</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<b></b>
+				<div class="show-qrcode-wechatapp">
+					<i class="iconfont icon-ico-xiaochengxu"></i>设计助手
+					<div class="float-box-padding xiaochengxu">
+						<div class="qrcode-container">
+							<div>
+								<img src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/weapp-ee-assistant.png" alt="电子硬件助手">
+								<span>电子硬件助手</span>
+							</div>
+							<div>
+								<img src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/weapp-part-tool.png" alt="元器件查询">
+								<span>元器件查询</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>	<div class="header-nav">
+		<div class="header-nav-fix">
+			<div class="header-nav-box">
+				<div class="container">
+					<div class="header-nav-container">
+						<div class="logo">
+							<a target="_blank" href="/" rel="noopener noreferrer">
+								<img src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/logo-eefocus-dark.svg" alt="">
+							</a>
+						</div>
+						<div class="panel">
+							<div class="nav">
+																								<ul>
+									<li>
+										<a href="/">首页</a>
+									</li>
+									<li>
+										<a href="/design/" target="_blank">电路设计</a>
+										<i class="iconfont icon-arrow-down-s-line"></i>
+									</li>
+									<li>
+										<a href="/manufacturer/">企业专区</a>
+										<i class="iconfont icon-arrow-down-s-line"></i>
+									</li>
+									<li>
+										<a class="industry-map-link" href="https://www.eefocus.com/industry-map/">应用/图谱</a>
+										<i class="iconfont icon-arrow-down-s-line"></i>
+									</li>
+									<li>
+										<a href="/insights/" target="_blank">与非原创</a>
+										<i class="iconfont icon-arrow-down-s-line"></i>
+									</li>
+									
+									<li>
+										<a href="/article/">资讯</a>
+										<i class="iconfont icon-arrow-down-s-line"></i>
+									</li>
+									
+									<li>
+										<a href="/v/" target="_blank">视频</a>
+										<i class="iconfont icon-arrow-down-s-line"></i>
+									</li>
+									<li>
+										<a>活动</a>
+										<i class="iconfont icon-arrow-down-s-line"></i>
+									</li>
+								</ul>
+															</div>
+							<div class="search" style="display: none;">
+								<form id="search-form" action="/search" target="_blank">
+									<div class="common-input-group">
+										<input type="text" class="common-form-control" gtbfieldid="2" autocomplete="off" name="q" value=""
+											maxlength="100" placeholder="请输入关键词进行搜索">
+										<input type="hidden" name="scene" value="nav_input">
+										<input type="hidden" name="source" value="eefocus">
+										<button type="submit" class="search-submit">
+											<i class="iconfont icon-search-line"></i>
+											<span>搜索</span>
+										</button>
+										<!-- 新增热点轮播 -->
+										<div class="sug-scroll" id="sug-scroll">
+											<div class="swiper-wrapper">
+											</div>
+										</div>
+										<!-- 新增搜索历史 by cydou -->
+										<div class="search-suggest">
+											<div class="search-suggest-box">
+												<p class="suggest-hot-title">
+													热搜
+												</p>
+												<div class="suggest-hot">
+												</div>
+												<p class="suggest-history-title">
+													搜索历史<span class="suggest-clear"><i class="iconfont icon-delete-bin-line"></i>清空</span>
+												</p>
+												<div class="suggest-history">
+												</div>
+											</div>
+											<div class="search-rec-box" style="display: none;">
+
+											</div>
+										</div>
+									</div>
+									<div class="search-close-button">
+										<i class="iconfont icon-close-line"></i>
+									</div>
+								</form>
+							</div>
+						</div>
+						<div class="action">
+							<div class="button"><i class="iconfont icon-search-line"></i></div>
+							<div class="creator-center">
+								<a class="creator" href="/creator/creation/" target="_blank" rel="nofollow">
+									<button small class="iconfont icon-ico-chuangzuozhezhongxin">创作者中心</button>
+								</a>
+																<div class="star-box-padding">
+									<div class="star-box">
+										<p>加入星计划，您可以享受以下权益：</p>
+										<ul>
+											<li>
+												<div><i class="iconfont icon-chuangzuozhongxin_01"></i></div>创作内容快速变现
+											</li>
+											<li>
+												<div><i class="iconfont icon-chuangzuozhongxin_02"></i></div>行业影响力扩散
+											</li>
+											<li>
+												<div><i class="iconfont icon-chuangzuozhongxin_03"></i></div>作品版权保护
+											</li>
+											<li>
+												<div><i class="iconfont icon-chuangzuozhongxin_04"></i></div>300W+ 专业用户
+											</li>
+											<li>
+												<div><i class="iconfont icon-chuangzuozhongxin_05"></i></div>1.5W+ 优质创作者
+											</li>
+											<li>
+												<div><i class="iconfont icon-chuangzuozhongxin_06"></i></div>5000+ 长期合作伙伴
+											</li>
+										</ul>
+										<a  class="site-application-btn" href="/account/application/" target="_blank">立即加入</a>
+									</div>
+								</div>
+															</div>
+														<div id="userbar-container"></div>
+													</div>
+					</div>
+				</div>
+			</div>
+			<div class="header-nav-slide">
+				<div class="container">
+					<ul>
+						<li>
+							<div class="slide-flex">
+								<div class="slide-link-box">
+									<a href="/circuit/">电路方案</a>
+									<a href="/document/">技术资料</a>
+									<a target="_blank" rel="noopener noreferrer"
+										href="//www.datasheet5.com/?utm_source=eefocus&utm_medium=referral&utm_campaign=navibar">数据手册</a>
+									<a target="_blank" rel="noopener noreferrer" href="/forum/">论坛</a>
+									<a target="_blank" rel="noopener noreferrer"
+										href="/tag/%E7%94%B5%E8%B7%AF%E5%88%86%E6%9E%90/">电路分析</a>
+									<a target="_blank" rel="noopener noreferrer" href="/tag/%E6%8B%86%E8%A7%A3/">拆解</a>
+									<a target="_blank" rel="noopener noreferrer" href="/tag/%E8%AF%84%E6%B5%8B/">评测</a>
+									<a class="unlinked"></a>
+								</div>
+								<div class="divide"></div>
+								<div class="slide-rank-box">
+									<dl>
+										<dt>方案</dt>
+																				<dd>
+											<span class="sn-1">1</span>
+											<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1022984.html">（更新）基于STM32的数字示波器设计（完整的设计资料）</a>
+										</dd>
+																				<dd>
+											<span class="sn-2">2</span>
+											<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1013539.html">Altium Designer - 常用元件3D模型封装库（STEP模型）</a>
+										</dd>
+																				<dd>
+											<span class="sn-3">3</span>
+											<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1137893.html">2款开关电源AC-DC解决方案，直流输出DC 5V(2.4A),24V(0.5A)</a>
+										</dd>
+																			</dl>
+								</div>
+								<div class="slide-rank-box">
+									<dl>
+										<dt>资料</dt>
+																				<dd>
+											<span class="sn-1">1</span>
+											<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/document/1360281.html">2022年《车规级MCU芯片综合研究》</a>
+										</dd>
+																				<dd>
+											<span class="sn-2">2</span>
+											<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/document/1497281.html">NXP®180 MHz Cortex-M3 32-bit MCUs LPC18Sxx</a>
+										</dd>
+																				<dd>
+											<span class="sn-3">3</span>
+											<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/document/1497286.html">Errata Mask 3N03G for Kinetis MK22FN1M0Vx MCUs</a>
+										</dd>
+																			</dl>
+								</div>
+							</div>
+						</li>
+						<li>
+							<div class="slide-flex">
+								<div class="slide-link-box">
+									<a href="/manufacturer/">企业中心</a>
+									<a target="_blank" rel="nofollow" href="/account/application">企业入驻</a>
+									<a target="_blank" rel="noopener noreferrer" href="/resource/">官方资料</a>
+									<a target="_blank" rel="noopener noreferrer" href="/npi/">新品发布NPI</a>
+									<a target="_blank" rel="noopener noreferrer" href="//www.cirmall.com/manufacturers">官方参考设计</a>
+								</div>
+								<div class="divide"></div>
+								<div class="slide-tag-box">
+									<p>厂商社区</p>
+									<div>
+										<a target="_blank" rel="noopener noreferrer"
+											href="//www.nxpic.org.cn/?utm_source=eefocus&utm_medium=referral&utm_campaign=navibar">恩智浦技术社区</a>
+										<a target="_blank" rel="noopener noreferrer"
+											href="//rf.eefocus.com/?utm_source=eefocus&utm_medium=referral&utm_campaign=navibar">RF技术社区</a>
+										<a target="_blank" rel="noopener noreferrer"
+											href="//rohm.eefocus.com/?utm_source=eefocus&utm_medium=referral&utm_campaign=navibar">ROHM技术社区</a>
+										<a target="_blank" rel="noopener noreferrer"
+											href="//shequ.stmicroelectronics.cn/?utm_source=eefocus&utm_medium=referral&utm_campaign=navibar">ST中文论坛</a>
+									</div>
+								</div>
+								<div class="divide"></div>
+								<div class="slide-img-box">
+									<p>新热企业</p>
+									<div>
+																				<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/manufacturer/1614453/">
+											<span class="img"
+												style="border: ">
+																								<img src="https://assets.eefcdn.com/app/uploads/2023/09/1695634274-1-e1695635209636.png?x-oss-process=image/resize,m_fill,w_214,h_120"
+													alt="爱普生电子元器件">
+																							</span>
+											<span class="name">爱普生电子元器件</span>
+										</a>
+																				<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/manufacturer/1538812/">
+											<span class="img"
+												style="border: ">
+																								<img src="https://assets.eefcdn.com/app/uploads/2023/06/1685692414-1.png?x-oss-process=image/resize,m_fill,w_214,h_120"
+													alt="忱芯科技">
+																							</span>
+											<span class="name">忱芯科技</span>
+										</a>
+																				<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/manufacturer/1538784/">
+											<span class="img"
+												style="border: ">
+																								<img src="https://assets.eefcdn.com/app/uploads/2023/06/1685691499-1.png?x-oss-process=image/resize,m_fill,w_214,h_120"
+													alt="三安光电">
+																							</span>
+											<span class="name">三安光电</span>
+										</a>
+																				<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/manufacturer/1538783/">
+											<span class="img"
+												style="border: ">
+																								<img src="https://assets.eefcdn.com/app/uploads/2023/06/1685693431-1.png?x-oss-process=image/resize,m_fill,w_214,h_120"
+													alt="宇称电子">
+																							</span>
+											<span class="name">宇称电子</span>
+										</a>
+																				<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/manufacturer/1538780/">
+											<span class="img"
+												style="border: ">
+																								<img src="https://assets.eefcdn.com/app/uploads/2023/06/1685691366-1.jpg?x-oss-process=image/resize,m_fill,w_214,h_120"
+													alt="芯视界">
+																							</span>
+											<span class="name">芯视界</span>
+										</a>
+																				<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/manufacturer/1538777/">
+											<span class="img"
+												style="border: ">
+																								<img src="https://assets.eefcdn.com/app/uploads/2023/06/1685691295-1.png?x-oss-process=image/resize,m_fill,w_214,h_120"
+													alt="灵明光子">
+																							</span>
+											<span class="name">灵明光子</span>
+										</a>
+																			</div>
+								</div>
+							</div>
+						</li>
+						<li class="industrial-nav-slide">
+							<div class="slide-flex">
+								<div class="slide-link-box">
+									<a href="/automobile-electronics/">汽车电子</a>
+									<a href="/industrial-electronics/">工业电子</a>
+									<a href="/ai/">人工智能</a>
+									<a href="/communication/">通讯/网络</a>
+								</div>
+								<div class="divide"></div>
+								<div class="slide-img-box">
+									<p>新热图谱<a href="https://www.eefocus.com/industry-map/">查看更多<i class="iconfont icon-arrow-right-s-line"></i></a></p>
+									<div>
+
+																				<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/industry-map/mobilephone/">
+											<span class="img">
+												<img src="https://assets.eefcdn.com/app/uploads/2022/10/1667095654-20.jpg?x-oss-process=image/resize,m_fill,w_214,h_120"
+													alt="手机">
+											</span>
+											<span class="name">手机</span>
+										</a>
+																				<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/industry-map/automotive/">
+											<span class="img">
+												<img src="https://assets.eefcdn.com/app/uploads/2022/10/1667095482-1.jpg?x-oss-process=image/resize,m_fill,w_214,h_120"
+													alt="汽车">
+											</span>
+											<span class="name">汽车</span>
+										</a>
+																				<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/industry-map/industrial-robot/">
+											<span class="img">
+												<img src="https://assets.eefcdn.com/app/uploads/2022/10/1667095344-7.jpg?x-oss-process=image/resize,m_fill,w_214,h_120"
+													alt="工业机器人">
+											</span>
+											<span class="name">工业机器人</span>
+										</a>
+																				<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/industry-map/xr/">
+											<span class="img">
+												<img src="https://assets.eefcdn.com/app/uploads/2022/10/1667095160-15.jpg?x-oss-process=image/resize,m_fill,w_214,h_120"
+													alt="XR">
+											</span>
+											<span class="name">XR</span>
+										</a>
+																			</div>
+								</div>
+							</div>
+						</li>
+						<li>
+							<div class="slide-flex">
+								<div class="slide-tag-box">
+									<div>
+										<a href="/insights/?series=tax_series_news">新闻/观察</a>
+										<a href="/insights/?series=tax_series_science">科普/拆解</a>
+										<a href="/insights/?series=tax_series_industry">产业/互动</a>
+										
+										
+										
+										
+										<a href="/insights/?series=tax_series_topic">专题策划</a>
+									</div>
+								</div>
+								<div class="divide"></div>
+								<div class="slide-img-box">
+									<p>最新原创<a href="/insights/" target="_blank">查看更多<i class="iconfont icon-arrow-right-s-line"></i></a>
+									</p>
+									<div>
+																				<a href="/insights/?series=tax_series_observe">
+											<span class="img">
+																								<img src="https://assets.eefcdn.com/app/uploads/2023/05/1684722624-观察.jpg?orientation=landscape&amp;width=400&amp;height=300" alt="与非观察">
+																							</span>
+											<span class="name">与非观察</span>
+										</a>
+																				<a href="/insights/?series=tax_series_research_report">
+											<span class="img">
+																								<img src="https://assets.eefcdn.com/app/uploads/2023/07/1690337545-研究报告4-3.jpg?orientation=landscape&amp;width=480&amp;height=360" alt="研究报告">
+																							</span>
+											<span class="name">研究报告</span>
+										</a>
+																				<a href="/insights/?series=tax_series_newsletter">
+											<span class="img">
+																								<img src="https://assets.eefcdn.com/app/uploads/2023/08/1691994447-每周必看-4-3.jpg?orientation=landscape&amp;width=480&amp;height=360" alt="每周必看">
+																							</span>
+											<span class="name">每周必看</span>
+										</a>
+																				<a href="/insights/?series=tax_series_disassemble">
+											<span class="img">
+																								<img src="https://assets.eefcdn.com/app/uploads/2023/05/1684891838-拆.jpg?orientation=landscape&amp;width=400&amp;height=300" alt="评测拆解">
+																							</span>
+											<span class="name">评测拆解</span>
+										</a>
+																			</div>
+								</div>
+							</div>
+						</li>
+						
+						<li>
+							<div class="slide-flex">
+								<div class="slide-tag-box">
+									<div>
+										<a href="/article/fpga/">可编程逻辑</a>
+										<a href="/article/sensor/">MEMS/传感技术</a>
+										<a href="/article/embedded/">嵌入式系统</a>
+										<a href="/article/analog-power/">模拟/电源</a>
+										<a href="/article/rf-microwave/">射频/微波</a>
+										<a href="/article/test-measurement/">测试测量</a>
+										<a href="/article/mcu-dsp/">控制器/处理器</a>
+										<a href="/article/eda-pcb/">EDA/PCB</a>
+										<a href="/article/component/">基础器件</a>
+										<a href="/article/automobile-electronics/">汽车电子</a>
+										<a href="/article/ai/">人工智能</a>
+										<a href="/article/industrial-electronics/">工业电子</a>
+										<a href="/article/communication/">通信/网络</a>
+										<a href="/article/consumer-electronics/">消费电子</a>
+									</div>
+								</div>
+								<div class="divide"></div>
+								<div class="slide-rank-box">
+									<dl>
+										<dt>热点资讯</dt>
+																				<dd>
+											 <span class="sn-1">1</span>
+																								<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/article/1642803.html">AI机器人产业分析报告（2023版完整报告下载）</a>
+										</dd>
+																				<dd>
+											 <span class="sn-2">2</span>
+																								<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/article/1641388.html">内卷的信号链行业，如何破局？</a>
+										</dd>
+																				<dd>
+											 <span class="sn-3">3</span>
+																								<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/article/1641762.html">连微软都自研芯片了，独立芯片公司的未来在哪里？</a>
+										</dd>
+																				<dd>
+																							<span>4</span>
+																								<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/article/1642117.html">自动驾驶，必须告别激光雷达「PTSD」</a>
+										</dd>
+																				<dd>
+																							<span>5</span>
+																								<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/article/1643107.html">2023中国临港国际半导体大会：数据爆发时代，中国芯片产业的出路探索</a>
+										</dd>
+																				<dd>
+																							<span>6</span>
+																								<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/article/1642246.html">寒冬，AIoT芯片厂商还在挣扎</a>
+										</dd>
+																			</dl>
+								</div>
+							</div>
+						</li>
+						
+						<li>
+							<div class="slide-flex">
+								<div class="slide-link-box">
+									<a href="/video/">视讯</a>
+									<a href="/course/">课程</a>
+									<a href="/live/">直播</a>
+								</div>
+								<div class="divide"></div>
+								<div class="slide-rank-box">
+									<dl>
+										<dt>最新</dt>
+																				<dd>
+											<span class="sn-1">1</span>
+											<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/live/1635751.html">爆款拆解：多传伺服电机驱动内部结构的奥秘</a>
+										</dd>
+																				<dd>
+											<span class="sn-2">2</span>
+											<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/course/1632021.html">CMW500射频测试指南</a>
+										</dd>
+																				<dd>
+											<span class="sn-3">3</span>
+											<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/live/1630863.html">超低功耗蓝牙RSL15助力发展医疗及汽车应用</a>
+										</dd>
+																			</dl>
+								</div>
+								<div class="slide-rank-box">
+									<dl>
+										<dt>原创</dt>
+																				<dd>
+											<span class="sn-1">1</span>
+											<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/video/1635614.html">对话工程师EP9：小型化电源设计的技术突破和挑战</a>
+										</dd>
+																				<dd>
+											<span class="sn-2">2</span>
+											<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/video/1631399.html">国产数字EDA的现状分析与策略思考</a>
+										</dd>
+																				<dd>
+											<span class="sn-3">3</span>
+											<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/video/1616590.html">四方维SaaS+ 西门子Teamcenter全新融合方案上线</a>
+										</dd>
+																			</dl>
+								</div>
+							</div>
+						</li>
+						<li class="special-nav-slide">
+							<div class="slide-flex">
+								<div class="slide-link-box">
+									<div>
+										<a target="_blank" rel="noopener noreferrer" href="/interaction/">行业活动</a>
+										<a target="_blank" rel="noopener noreferrer" href="/forum/forum-306-1.html">论坛活动</a>
+									</div>
+									
+								</div>
+								<div class="divide"></div>
+								<div class="slide-rank-box">
+									<dl>
+										<dt>新热活动 <a target="_blank" rel="noopener noreferrer" href="/interaction/">查看更多<i
+													class="iconfont icon-arrow-right-s-line"></i></a></dt>
+																														<dd>
+											<span class="sn-1">1</span>
+											<a target="_blank" rel="noopener noreferrer" href="https://jinshuju.net/f/UWBOzl">【参会领150京东卡】Arm年度技术大会诚邀您报名</a>
+										</dd>
+																				<dd>
+											<span class="sn-2">2</span>
+											<a target="_blank" rel="noopener noreferrer" href="https://jinshuju.net/f/anffIt?x_field_1=eefocus">【参会领￥150京东卡】2023 瑞萨电子MCU/MPU工业技术研讨会</a>
+										</dd>
+																				<dd>
+											<span class="sn-3">3</span>
+											<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/course/1071648.html">基于Xilinx MPSoC系列 FPGA视频教程</a>
+										</dd>
+																													</dl>
+								</div>
+								<div class="slide-img-box">
+									<p>最新直播</p>
+									<div>
+																														<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/live/1630863.html">
+											<span class="img" style="border: ">
+																								<img src="https://assets.eefcdn.com/app/uploads/2023/10/1698299897-%E7%A1%AE%E8%AE%A4.jpg?x-oss-process=image/resize,m_fill,w_256,h_144" alt="超低功耗蓝牙RSL15助力发展医疗及汽车应用">
+																							</span>
+										</a>
+																				<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/live/1635751.html">
+											<span class="img" style="border: ">
+																								<img src="https://assets.eefcdn.com/app/uploads/2023/11/1700096897-1280-720-%E6%8B%B7%E8%B4%9D.jpg?x-oss-process=image/resize,m_fill,w_256,h_144" alt="爆款拆解：多传伺服电机驱动内部结构的奥秘">
+																							</span>
+										</a>
+																													</div>
+								</div>
+								
+							</div>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+	<div id="app">
+		<div class="container">
+			<div id="index-container">
+	<div class="breadcrumb">
+  <ul>
+        <li>
+      			      <a target="_blank" href="https://www.eefocus.com" rel="noopener noreferrer">首页</a>
+			      <i class="iconfont icon-arrow-right-s-line"></i>
+          </li>
+        <li>
+      			      <a target="_blank" href="https://www.eefocus.com/course/" rel="noopener noreferrer">课程</a>
+			      <i class="iconfont icon-arrow-right-s-line"></i>
+          </li>
+        <li>
+            神经网络加速器与SOC芯片设计（十九）-FPGA上板演示，Roofline模型与能效评估
+          </li>
+      </ul>
+</div>
+	<div class="video-part course">
+	<div class="section-left">
+		<div class="section-video">
+			<div class="video-player">
+				<div class="video-player-poster">
+										<img src="https://assets.eefcdn.com/app/uploads/2019/04/2710_cover.jpg?x-oss-process=image/resize,m_fill,w_1280,h_720" alt="">
+										<span class="play-button-trigger"></span>
+				</div>
+				
+				<div class="video-error-tip">
+					<div>
+						<p>
+							<img src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/logo-eefocus-white.svg" alt="logo">
+							<span class="video-error-msg"></span>
+						</p>
+					</div>
+				</div>
+				
+				<video id="player" class="video-js vjs-default-skin vjs-big-play-centered" controls width="896" height="504">
+					<p class="vjs-no-js">
+						如果想使用video.js，请确保浏览器可以运行JavaScript，并且支持
+						<a target="_blank" href="https://videojs.com/html5-video-support/" rel="noopener noreferrer">HTML5 video</a>
+					</p>
+				</video>
+			</div>
+			
+			<div class="preplay-layer">
+				<img src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/logo-eefocus-white.svg" alt="logo">
+				<div class="loading"></div>
+			</div>
+			
+			
+			
+			
+		</div>
+		<div class="section-action">
+			<div class="action-left">
+				<ul>
+										<li id="thumb">
+						<i class="iconfont icon-thumb-up-line"></i>
+						1
+					</li>
+										<li id="comment">
+						<i class="iconfont icon-chat-3-line"></i>
+												7											</li>
+					<li>
+						<i class="iconfont icon-share-circle-line"></i>分享
+						<div class="float-box">
+							<div class="share-panel">
+								<div class="share-link sns-copy-button">
+									<i class="iconfont icon-link-m"></i>复制链接
+								</div>
+								<div class="share-link sns-share-weibo">
+									<i class="iconfont icon-weibo"></i>新浪微博
+								</div>
+								<div class="share-link">
+									<i class="iconfont icon-qr-scan-2-line"></i>微信/QQ扫码
+								</div>
+								<img class="sns-qrcode-container" src="" alt="" />
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+			<div class="action-right">
+				<div class="price-info">
+					
+										<div class="price">￥<span>49</span></div>
+														</div>
+								<div class="buy buy-button-trigger">
+					<button big>立即购买</button>
+				</div>
+							</div>
+		</div>
+	</div>
+
+		<div class="section-right">
+		<div class="bar">
+			<span>
+				<i class="iconfont icon-ico-checkbox-multiple-blank-fill"></i>
+				课程章节
+				
+			</span>
+			
+		</div>
+		<div class="content">
+			<ul>
+								<li class="course-li">
+					<div class="sequence"><img src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/broadcast.svg"
+							alt="broadcast"><span>1</span></div>
+					<div class="info">
+						<div class="title-box"><a
+								data-player-url="https://www.eefocus.com/api/posts/1057545/player-url?lesson=1"
+								data-vodid="150"
+								data-length="2581" class="course-title" title="FPGA上板演示，Roofline模型与能效评估">FPGA上板演示，Roofline模型与能效评估</a></div>
+						<div class="playinfo">
+							<span>时长 43:01</span>
+														
+						</div>
+					</div>
+					
+				</li>
+							</ul>
+		</div>
+	</div>
+	</div>	<div class="section-body">
+		<div class="section-left">
+			<div class="article-nav">
+	<div class="article-nav-list">
+		<ul>
+						<li  class="active"  >
+				<span > 课程介绍 </span>
+							</li>
+						<li   data-target="outline-1"
+				>
+				<span > 推荐器件 </span>
+							</li>
+						<li   data-target="outline-2"
+				>
+				<span > 相关推荐 </span>
+							</li>
+						<li   data-target="outline-3"
+				>
+				<span > 电子产业图谱 </span>
+							</li>
+					</ul>
+		<i class="line"></i>
+	</div>
+	<a target="_blank" class="site-application-btn link" href="/account/application" class="link" rel="nofollow">申请入驻</a>
+	<a target="_blank" class="industry-map-link link" href="https://www.eefocus.com/industry-map/" class="link" rel="noopener noreferrer">产业图谱</a>
+</div>		</div>
+		<div class="section-medium">
+			<div class="details-section-title">
+	<div class="title">
+						<span>初级</span>
+						<h1>神经网络加速器与SOC芯片设计（十九）-FPGA上板演示，Roofline模型与能效评估</h1>
+	</div>
+	<div class="details-line">
+		<div class="left-part">
+			<span>2019/11/28</span>
+			<i class="split-line"></i>
+			<span class="author user-info-card-trigger" uid="3428838">作者：<a
+					href="https://www.eefocus.com/user/3428838/" target="_blank">蔡宇杰</a></span>
+						<i class="split-line"></i>
+			<div class="hot-num"><img src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/hot-num.png" />3376</div>
+						<ul>
+				
+								<i class="split-line"></i>
+				<li class="data-tag">7评论</li>
+							</ul>
+			 <i class="split-line">
+				</i><span class="reading"><i class="iconfont icon-time-line"></i>阅读需 9
+					分钟</span>
+						</div>
+		<div class="right-part float-box-container"><i class="iconfont icon-wechat-fill"></i>加入交流群
+			<div class="float-box-padding">
+				<div class="qrcode">
+					<img src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/officalGroup.png" alt="" />
+					<span>扫码加入<br>获取工程师必备礼包<br>参与热点资讯讨论</span>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>			<div class="linkad-container">
+	
+
+	<ins data-revive-zoneid="797" data-revive-id="938569507b5eec61bf3aa452464fb480"></ins>
+	<script async src="//gg.eefocus.com/www/delivery/asyncjs.php"></script>
+</div>			<div class="article-content">
+				<p style="white-space: normal;">该课程“<a href="http://www.moore8.com/series/package/soc" target="_blank" rel="noopener"><span style="color: #f79646;">神经网络加速器与SOC芯片设计</span></a>”为系列课程，分为2部分，19个课时，特惠399元（原价：<span style="text-decoration: line-through;">￥735</span>）。</p>
+<hr />
+<p style="white-space: normal;">本课程以底层<a class="article-link" target="_blank" href="/tag/%E7%A1%AC%E4%BB%B6/">硬件</a>为切入点进行神经网络加速器与SOC<a class="article-link" target="_blank" href="/tag/芯片/">芯片</a>设计，与高层次综合工具直接生成<a class="article-link" target="_blank" href="/tag/%E7%94%B5%E8%B7%AF/">电路</a>的方式不同，此课程是以主流、传统的方式进行芯片设计，因此更加关注于电路底层的细节（<span style="color: #f79646;">如每一个模块的功能、工作模式、效率、资源消耗等</span>）。本课程将分为两个主要部分：SOC芯片设计基础与神经网络加速器设计，第二部分的课程依赖于第一部分的SOC设计基础。</p>
+<p style="white-space: normal;">第一部分以<a class="article-link" target="_blank" href="/baike/1477913.html">数字电路</a>与硬件描述语言为出发点，讲述正确的模块设计方法、Verilog代码编写思路、模块间常用的通信模式以及“AXI4”<a class="article-link" target="_blank" href="/baike/1542179.html">总线</a>协议，同时会对AXI4总线的开发、仿真、调试进行深入剖析，并以此为基础在<a class="article-link" target="_blank" href="/tag/FPGA/">FPGA</a><a class="article-link" target="_blank" href="/tag/%E5%BC%80%E5%8F%91%E6%9D%BF/">开发板</a>上完成SOC芯片设计。</p>
+<p style="white-space: normal;">第二部分从通用<a class="article-link" target="_blank" href="/baike/489303.html">卷积神经网络</a>对加速器的功能需求为出发点，定义了加速器所需支持的功能，划分加速器的功能模块。本课程将着眼于整个神经网络中运算量最大的功能——卷积运算，对卷积运算通路进行架构建模与分析，并进行模块的设计与验证工作。在FPGA上完成基本的功能验证后，会对硬件的性能进行测量与评估，进行性能评估时所使用的网络是VGG16。</p>
+<hr style="white-space: normal;" />
+<p style="white-space: normal;"><span style="color: #f79646;"><strong>金牌讲师：</strong></span></p>
+<p style="white-space: normal;"><img decoding="async" style="float: left;" title="image1546048995.png" src="http://www.moore8.com/uploads/images/course/2468/ue/image1546048995.png" alt="蔡宇杰.png" /></p>
+<p style="white-space: normal;"><strong>蔡宇杰</strong></p>
+<p style="white-space: normal;">多次参加电子设计竞赛、数学建模竞赛并获国家级奖项，以综合成绩100.72分从西安电子科技大学保送复旦大学<a class="article-link" target="_blank" href="/baike/1596630.html">微电子</a>学院读研。在复旦期间荣获“<a class="article-link" target="_blank" href="/tag/%E5%8D%8E%E4%B8%BA/">华为</a>企业奖学金”与全国研究生创“芯”大赛获得一等奖，同时有着丰富的实习经历。现已拿到大疆、华为等多家名企offer。</p>
+<p style="white-space: normal;"><span style="color: #f79646;"><strong>他的其它畅销课程：</strong></span></p>
+<ol class="list-paddingleft-2" style="list-style-type: decimal;">
+<li><a style="color: #ff0000;" href="http://www.moore8.com/series/PYNQ" target="_blank" rel="noopener">【免费试用】基于PYNQ平台——快速入门神经网络的建模与硬件加速</a></li>
+<li><a style="color: #ff0000;" href="http://www.moore8.com/series/sjwl" target="_blank" rel="noopener">AI课程精品套餐|神经网络的快速搭建训练到FPGA实现</a></li>
+</ol>
+<hr style="white-space: normal;" />
+<p style="white-space: normal;"><span style="color: #f79646;"><strong>课程特色：</strong></span></p>
+<p style="white-space: normal;">网络上Verilog语法教程很多，但使用Verilog进行复杂模块设计、仿真方案、上板测试并且调试的教程却很稀少，通过HLS工具生成电路，你无法学习芯片电路底层知识，更难谈起“从底层对硬件进行优化”，可能连“工具产生的电路的瓶颈在哪、这个瓶颈如何导致、能否解决”都意识不到。对做实际工程、就业很不好，本课程将从硬件底层出发，你会对整个系统的工作模式、瓶颈、资源消耗等了如指掌。</p>
+<p style="white-space: normal;"><strong style="color: #f79646;">本期课程内容：</strong></p>
+<p style="white-space: normal;">FPGA上板演示，Roofline模型与能效评估</p>
+<p style="white-space: normal;"><span style="color: #f79646;"><strong>适宜人群：</strong></span></p>
+<ul class="list-paddingleft-2" style="list-style-type: square;">
+<li>想学习数字芯片设计、FPGA开发；</li>
+<li>对数字<a class="article-link" target="_blank" href="/tag/%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/">电路设计</a>有一定基础、想对硬件电路底层进行更加深入的学习的同学。</li>
+</ul>
+<p style="white-space: normal;"><strong style="color: #f79646;">通过本系列课的学习，你将收获：</strong></p>
+<ul class="list-paddingleft-2" style="list-style-type: square;">
+<li>数字电路的基本设计方法</li>
+<li>AXI4总线协议的开发、仿真与板级调试的方法</li>
+<li>SOC芯片的开发与板级调试的方法</li>
+<li>从功能到架构的芯片设计方法</li>
+<li>从“零”开始的<a class="article-link" target="_blank" href="/tag/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/">人工智能</a>嵌入式芯片的设计经验</li>
+</ul>
+<hr style="white-space: normal;" />
+<p style="white-space: normal;"><strong style="color: #f79646;">本系列课程目录：</strong></p>
+<p style="white-space: normal;">本课程为<a href="http://www.moore8.com/series/package/SOC" target="_blank" rel="noopener">系列课程</a>，分为2部分，15个课时</p>
+<p style="white-space: normal;"><a href="http://www.moore8.com/courses/2468" target="_blank" rel="noopener">第一节：Verilog基础</a></p>
+<p style="white-space: normal;"><a href="http://www.moore8.com/courses/2479" target="_blank" rel="noopener">第二节：Block RAM（一）</a></p>
+<p style="white-space: normal;"><a href="http://www.moore8.com/courses/2480" target="_blank" rel="noopener">第三节：Block RAM（二）</a></p>
+<p style="white-space: normal;"><a href="http://www.moore8.com/courses/2481" target="_self" rel="noopener">第四节：</a><a href="http://www.moore8.com/courses/2481" target="_self" rel="noopener">AXI4-lite协议解读，IP封装与总线挂载</a></p>
+<p style="white-space: normal;"><a href="http://www.moore8.com/courses/2482" target="_self" rel="noopener">第五节：AXI4-lite总线（一）</a></p>
+<p style="white-space: normal;"><a href="http://www.moore8.com/courses/2483" target="_self" rel="noopener">第六节：AXI4-lite总线（二）</a></p>
+<p style="white-space: normal;"><a href="http://www.moore8.com/courses/2484" target="_self" rel="noopener">第七节：AXI4-HP总线（一）</a></p>
+<p style="white-space: normal;"><a href="http://www.moore8.com/courses/2485" target="_self" rel="noopener">第八节：AXI4-HP总线（二）</a></p>
+<p style="white-space: normal;"><a href="http://www.moore8.com/courses/2486" target="_self" rel="noopener">第九节：DMA的工作原理与基于AXI-HP总线的DMA模块设计</a></p>
+<p style="white-space: normal;"><a href="http://www.moore8.com/courses/2487" target="_self" rel="noopener">第十节：加速器中的访存模块与内部总线原理（上）</a></p>
+<p style="white-space: normal;"><a href="http://www.moore8.com/courses/2488" target="_self" rel="noopener">第十一节：加速器中的访存模块与内部总线的原理与实践（下）</a></p>
+<p style="white-space: normal;"><a href="http://www.moore8.com/courses/2489" target="_blank" rel="noopener">第十二节：特征的内存映射方式、通用池化运算单元的功能需求与架构设计</a></p>
+<p style="white-space: normal;"><a href="http://www.moore8.com/courses/2490" target="_blank" rel="noopener">第十三节：通用池化运算单元架构设计与工程实现</a></p>
+<p style="white-space: normal;"><a href="http://www.moore8.com/courses/2491" target="_blank" rel="noopener">第十四节：定点数运算与权重在内存中的排布方式</a></p>
+<p style="white-space: normal;"><a href="http://www.moore8.com/courses/2492" target="_blank" rel="noopener">第十五节：卷积运算的循环顺序修改与乘加器阵列映射</a></p>
+<p style="white-space: normal;"><a href="https://www.moore8.com/courses/2708" target="_blank" rel="noopener">第十六节：基于权重复用的乘加器优化与卷积运算电路的架构设计</a></p>
+<p style="white-space: normal;"><a href="https://www.moore8.com/courses/2711" target="_blank" rel="noopener">第十七节：基于缓存结构的卷积运算电路模块实现（一）</a></p>
+<p style="white-space: normal;"><a href="https://www.moore8.com/courses/2709" target="_blank" rel="noopener">第十八节：基于缓存结构的卷积运算电路模块实现（二）</a></p>
+<p style="white-space: normal;"><a href="https://www.moore8.com/courses/2710" target="_blank" rel="noopener">第十九节：FPGA上板演示，Roofline模型与能效评估</a></p>
+<hr style="white-space: normal;" />
+<p style="white-space: normal;"><strong><span style="color: #f79646;">工具列表：</span></strong></p>
+<p style="white-space: normal;"><a class="article-link" target="_blank" href="/tag/vivado/">vivado</a>，vivado SDK</p>
+<p style="white-space: normal;"><span style="color: #f79646;"><strong>可适用板卡：</strong></span></p>
+<p style="white-space: normal;"><span style="text-indent: 29px;">本课程适用于PYNQ，ZYBO以及所有带<a class="article-link" target="_blank" href="/baike/481548.html">ARM</a>硬核的FPGA开发板，若你有一定软核使用经验，也可使用纯逻辑开发板。</span></p>
+<p style="white-space: normal;"><strong><span style="color: #f79646;">Zybo<strong>/Pynq</strong>开发板介绍</span></strong><strong><span style="color: #f79646;">：</span></strong></p>
+<p style="white-space: normal;"><img decoding="async" loading="lazy" style="width: 130px; height: 90px; float: left;" title="image1540287494.png" src="http://www.moore8.com/uploads/images/course/2359/ue/image1540287494.png" alt="Zybo开发板.png" width="130" height="90" />Zybo是一款功能强大丰富，开箱即用型的Xilinx Zynq-7000 APSoC 软硬协同<a class="article-link" target="_blank" href="/baike/1582744.html">嵌入式开发板</a>。Zynq系列芯片基于Xilinx全可编程<a class="article-link" target="_blank" href="/baike/528464.html">片上系统</a>架构（AP SoC），将双核Cortex-A9 <a class="article-link" target="_blank" href="/baike/1532423.html">ARM处理器</a>与Xilinx 7系列FPGA紧密集成在同一芯片上。Zybo Z7板上搭载有丰富的多媒体接口和连接外设，在其本身就是一台功能强劲的<a class="article-link" target="_blank" href="/tag/%E5%8D%95%E6%9D%BF%E8%AE%A1%E7%AE%97%E6%9C%BA/">单板计算机</a>的基础上，进一步添加了FPGA功能，令其拥有无可比拟的开发灵活性与强大性能。Zybo Z7所集成的视频处理功能集，包括一个兼容<a class="article-link" target="_blank" href="/tag/MIPI/">MIPI</a> CSI-2的Pcam（<a class="article-link" target="_blank" href="/baike/482292.html">摄像头</a>模块）接口，HDMI输入，HDMI输出和高带宽<a class="article-link" target="_blank" href="/baike/528706.html">DDR3</a>L，使之成为时下“嵌入式视觉”这一Xilinx FPGA最为热门的应用领域的一大高性价比解决方案。除此之外，Zybo Z7丰富的Pmod接口让用户能够十分轻松地进一步实现硬件功能的外设扩展，可搭配70多种Digilent专利的Pmod积木式传感模块使用。</p>
+<p style="white-space: normal;"><img decoding="async" loading="lazy" style="width: 130px; height: 90px; float: left;" title="image1540805385.jpg" src="http://www.moore8.com/uploads/images/course/2376/ue/image1540805385.jpg" alt="PYNQ.jpg" width="130" height="90" /></p>
+<p style="white-space: normal;">Pynq-Z2是一款功能强大丰富，开箱即用型的Xilinx Zynq-7000 软硬协同嵌入式开发板。Zynq系列芯片基于Xilinx全可编程片上系统架构（AP SoC），将双核Cortex-A9 ARM处理器与Xilinx 7系列FPGA紧密集成在同一芯片上。板上搭载有丰富的多媒体接口和连接外设，在其本身就是一台功能强劲的单板计算机的基础上，进一步添加了FPGA功能，令其拥有无可比拟的开发灵活性与强大性能。此外，还支持Xilinx推出的<a class="article-link" target="_blank" href="/tag/%E5%BC%80%E6%BA%90/">开源</a>框架PYNQ，支持使用Python进行<a class="article-link" target="_blank" href="/baike/1555864.html">应用层</a>的开发与调用底层FPGA硬件加速，旨在使基于Zynq架构上的嵌入式开发更加简单易上手。使用Python编程语言以及丰富的第三方扩展包，开发者可以充分利用Zynq架构中的<a class="article-link" target="_blank" href="/baike/514679.html">可编程逻辑器件</a>和<a class="article-link" target="_blank" href="/baike/506860.html">微处理器</a>的优势，创造出更多好玩有意思的<a class="article-link" target="_blank" href="/baike/502953.html">嵌入式系统</a>项目。</p>
+<hr style="white-space: normal;" />
+<p style="white-space: normal;">
+
+	</div>
+						<div class="bom">
+	<div class="section-details-header">
+		<div class="title">
+			<h2> 推荐器件 </h2>
+		</div>
+		<div class="action">
+			<a href="//www.datasheet5.com/" target="_blank"><i class="iconfont icon-logo-datasheet5"></i>更多器件<i
+					class="iconfont icon-arrow-right-s-line"></i></a>
+			<button small black class="iconfont icon-download-2-line" id="ECADdownloadAll">下载所有器件模型</button>
+			
+		</div>
+	</div>
+	<div class="bom-table">
+		<table border="1">
+			<tr>
+				<th>器件型号</th>
+				<th>数量</th>
+				<th>器件厂商</th>
+				<th>器件描述</th>
+				<th>数据手册</th>
+				<th>ECAD模型</th>
+				<th>风险等级</th>
+				<th>参考价格</th>
+				<th>更多信息</th>
+			</tr>
+
+									<tr>
+				<td>ATXMEGA128D4-MH</td>
+				<td>1</td>
+				<td>
+										Atmel Corporation
+									</td>
+				<td>
+										<span class="Description">RISC Microcontroller, 16-Bit, FLASH, AVR RISC CPU, 32MHz, CMOS, PQCC44, 7 X 7 MM, 1 MM HEIGHT, 0.50 MM PITCH, GREEN, PLASTIC, MO-220VKKD-3, VQFN-44</span>
+									</td>
+				<td class="datasheet">
+										<a data-url="https://bridge2.datasheet5.com/4donline.ihs.com/images/VipMasterIC/IC/ATML/ATML-S-A0002478566/ATML-S-A0002478566-1.pdf?hkey=EF798316E3902B6ED9A73243A3159BB0" rel="noopener noreferrer"><img class="icon"
+							src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/icon-pdf.svg" alt=""></a>
+									</td>
+				<td>
+										<div class="ecad">
+						<i class="iconfont icon-moxing01 unset"></i>
+						<i class="iconfont icon-moxing-02 unset"></i>
+						
+					</div>
+									</td>
+				<td class="bom-circle">
+					<div id="progress"
+						data-risk-rank="3.33"
+						class="progress0">
+					</div>
+				</td>
+				<td>
+										$5.3
+									</td>
+				<td><a target="_blank" class="btn" href="https://www.datasheet5.com/part/ATXMEGA128D4-MH/Atmel%20Corporation/?utm_source=cirmall&amp;utm_medium=referral&amp;utm_campaign=circuit_bom" rel="noopener noreferrer">查看</a>
+				</td>
+			</tr>
+												<tr>
+				<td>MK64FN1M0VLL12</td>
+				<td>1</td>
+				<td>
+										Freescale Semiconductor
+									</td>
+				<td>
+										<span class="Description">RISC MICROCONTROLLER</span>
+									</td>
+				<td class="datasheet">
+										<a data-url="https://bridge2.datasheet5.com/4donline.ihs.com/images/VipMasterIC/IC/FSCL/FSCL-S-A0001280987/FSCL-S-A0001280987-1.pdf?hkey=EF798316E3902B6ED9A73243A3159BB0" rel="noopener noreferrer"><img class="icon"
+							src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/icon-pdf.svg" alt=""></a>
+									</td>
+				<td>
+										<div class="ecad" preview-url="https://supplyframe.componentsearchengine.com/preview.php?ev=0&amp;fmt=epw&amp;pna=Supplyframe&amp;lang=zh-CHS&amp;partID=1036858">
+						<i class="iconfont icon-moxing01 ecad-can-click"></i>
+						<i class="iconfont icon-moxing-02 ecad-can-click"></i>
+						<div class="ecad-modal-wrap">
+							<div class="ecad-modal">
+								<img class="close-btn" src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/close.png" alt="">
+								<p>ECAD模型</p>
+								<div class="pic-box"><iframe src frameborder="0" scrolling="no"></iframe></div>
+								<div class="pic-box-line"></div>
+								<a data-url="https://www.eefocus.com/circuit/ecad-download?mpn=MK64FN1M0VLL12&amp;mna=Freescale Semiconductor" class="download"><img
+										src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/download-white.png" alt="">下载ECAD模型</a>
+							</div>
+						</div>
+					</div>
+									</td>
+				<td class="bom-circle">
+					<div id="progress"
+						data-risk-rank="8.36"
+						class="progress1">
+					</div>
+				</td>
+				<td>
+										$11.93
+									</td>
+				<td><a target="_blank" class="btn" href="https://www.datasheet5.com/part/MK64FN1M0VLL12/Freescale%20Semiconductor/?utm_source=cirmall&amp;utm_medium=referral&amp;utm_campaign=circuit_bom" rel="noopener noreferrer">查看</a>
+				</td>
+			</tr>
+												<tr>
+				<td>ATXMEGA128A1U-AU</td>
+				<td>1</td>
+				<td>
+										Microchip Technology Inc
+									</td>
+				<td>
+										<span class="Description">IC MCU 8BIT 128KB FLASH 100TQFP</span>
+									</td>
+				<td class="datasheet">
+										<a data-url="https://bridge2.datasheet5.com/4donline.ihs.com/images/VipMasterIC/IC/MCHP/MCHP-S-A0006190054/MCHP-S-A0006190054-1.pdf?hkey=EF798316E3902B6ED9A73243A3159BB0" rel="noopener noreferrer"><img class="icon"
+							src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/icon-pdf.svg" alt=""></a>
+									</td>
+				<td>
+										<div class="ecad" preview-url="https://supplyframe.componentsearchengine.com/preview.php?ev=0&amp;fmt=epw&amp;pna=Supplyframe&amp;lang=zh-CHS&amp;partID=468670">
+						<i class="iconfont icon-moxing01 ecad-can-click"></i>
+						<i class="iconfont icon-moxing-02 ecad-can-click"></i>
+						<div class="ecad-modal-wrap">
+							<div class="ecad-modal">
+								<img class="close-btn" src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/close.png" alt="">
+								<p>ECAD模型</p>
+								<div class="pic-box"><iframe src frameborder="0" scrolling="no"></iframe></div>
+								<div class="pic-box-line"></div>
+								<a data-url="https://www.eefocus.com/circuit/ecad-download?mpn=ATXMEGA128A1U-AU&amp;mna=Microchip Technology Inc" class="download"><img
+										src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/download-white.png" alt="">下载ECAD模型</a>
+							</div>
+						</div>
+					</div>
+									</td>
+				<td class="bom-circle">
+					<div id="progress"
+						data-risk-rank="1.12"
+						class="progress2">
+					</div>
+				</td>
+				<td>
+										$7
+									</td>
+				<td><a target="_blank" class="btn" href="https://www.datasheet5.com/part/ATXMEGA128A1U-AU/Microchip%20Technology%20Inc/?utm_source=cirmall&amp;utm_medium=referral&amp;utm_campaign=circuit_bom" rel="noopener noreferrer">查看</a>
+				</td>
+			</tr>
+						
+			<!-- <tr>
+				<td>STM32F10XXXXXX3C8T6</td>
+				<td>1</td>
+				<td><span class="empty">暂无数据</span></td>
+				<td>
+					<div id="progress" class="progress1 low"></div>
+				</td>
+				<td>
+					<div class="ecad">
+						<img src="https://placekitten.com/94/70" alt="">
+						<img src="https://placekitten.com/94/70" alt="">
+						<a target="_blank" class="btn">下载</a>
+					</div>
+				</td>
+				<td>
+					<svg class="icon" aria-hidden="true">
+						<use xlink:href="#icon-a-ico-geshi-pdf"></use>
+					</svg>
+				</td>
+				<td><a target="_blank" class="btn">查看</a></td>
+			</tr>
+			<tr>
+				<td>STM32F10XXXXXX3C8T6</td>
+				<td>1</td>
+				<td colspan="5">未精准适配到当前器件信息，点击<a target="_blank" href="">查询推荐元器件</a></td>
+			</tr> -->
+		</table>
+	</div>
+</div>
+			<div class="copyright">
+		原创声明：本文为蔡宇杰原创内容，未经书面授权，不得以任何方式加以使用。
+		
+	<span class="reprinted">
+				转载合作
+				<div class="qrcode-float-box">
+			<div class="qrcode">
+				<img src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/kefu.png" alt="" />
+				<span>人工客服<br />（售后/吐槽/合作/交友）</span>
+			</div>
+		</div>
+	</span>
+</div>			<div class="tag-list">
+  <ul class="tag-ul">
+        <li class="tag-item"><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/tag/%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/"
+        title="神经网络"><i class="iconfont icon-price-tag-3-line"></i>神经网络</a>
+    </li>
+        <li class="tag-item"><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/tag/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD/"
+        title="人工智能"><i class="iconfont icon-price-tag-3-line"></i>人工智能</a>
+    </li>
+        <li class="tag-item"><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/tag/%E6%91%A9%E5%B0%94%E5%90%A7%E7%8B%AC%E5%AE%B6/"
+        title="摩尔吧独家"><i class="iconfont icon-price-tag-3-line"></i>摩尔吧独家</a>
+    </li>
+                <li class="tag-item"><a target="_blank" rel="noopener noreferrer"
+        href="https://www.eefocus.com/course/ai/"
+        title="人工智能"><i class="iconfont icon-hashtag"></i>人工智能</a></li>
+                  </ul>
+</div>
+						<div id="footer-action-container"></div>
+			<div class="section-adbox ox-708x80">
+		<ins data-revive-zoneid="771" data-revive-id="938569507b5eec61bf3aa452464fb480"></ins>
+	<script async src="//gg.eefocus.com/www/delivery/asyncjs.php"></script>
+	</div>			<div class="section-details-header relations">
+	<div class="title">
+		<h2>相关推荐</h2>
+	</div>
+</div>
+<div class="more-relative-contents">
+	<ul>
+				<li>
+			<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1615804.html" class="item-title eefocus-jump" data-jump-url="https://www.eefocus.com/redirect?to=https%3A%2F%2Fwww.eefocus.com%2Fcircuit%2F1615804.html&amp;site=eefocus&amp;scene=detail-reco"
+				title="虹科AR一站式解决方案：提升现场服务技能、效率与盈利能力的利器">
+				虹科AR一站式解决方案：提升现场服务技能、效率与盈利能力的利器</a>
+			<div class="item-details">
+				<a target="_blank" href="https://www.eefocus.com/user/3889479/"
+					class="name-block user-info-card-trigger" uid="3889479">
+					
+					<span class="name">虹科技术</span></a>
+								<i class="split-line"></i>
+				<div class="hot-num"><i class="iconfont icon-fire"></i>1310</div>
+								<i class="split-line"></i>
+				<span class="item-normal">10/16 14:06</span>
+				<a target="_blank" rel="noopener noreferrer" class="tag"
+					href="https://www.eefocus.com/circuit/">方案</a>
+			</div>
+		</li>
+
+				<li>
+			<div class="section-adbox ox-318x52">
+		<ins data-revive-zoneid="911" data-revive-id="938569507b5eec61bf3aa452464fb480"></ins>
+	<script async src="//gg.eefocus.com/www/delivery/asyncjs.php"></script>
+	</div>		</li>
+						<li>
+			<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1609524.html" class="item-title eefocus-jump" data-jump-url="https://www.eefocus.com/redirect?to=https%3A%2F%2Fwww.eefocus.com%2Fcircuit%2F1609524.html&amp;site=eefocus&amp;scene=detail-reco"
+				title="农业四情远程监测系统技术方案">
+				农业四情远程监测系统技术方案</a>
+			<div class="item-details">
+				<a target="_blank" href="https://www.eefocus.com/user/3901610/"
+					class="name-block user-info-card-trigger" uid="3901610">
+					
+					<span class="name">北京东用科技有限公司</span></a>
+								<i class="split-line"></i>
+				<div class="hot-num"><i class="iconfont icon-fire"></i>3269</div>
+								<i class="split-line"></i>
+				<span class="item-normal">09/18 10:57</span>
+				<a target="_blank" rel="noopener noreferrer" class="tag"
+					href="https://www.eefocus.com/circuit/">方案</a>
+			</div>
+		</li>
+
+						<li>
+			<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1610145.html" class="item-title eefocus-jump" data-jump-url="https://www.eefocus.com/redirect?to=https%3A%2F%2Fwww.eefocus.com%2Fcircuit%2F1610145.html&amp;site=eefocus&amp;scene=detail-reco"
+				title="虹科分享 | 谷歌Vertex AI平台使用Redis搭建大语言模型">
+				虹科分享 | 谷歌Vertex AI平台使用Redis搭建大语言模型</a>
+			<div class="item-details">
+				<a target="_blank" href="https://www.eefocus.com/user/3889479/"
+					class="name-block user-info-card-trigger" uid="3889479">
+					
+					<span class="name">虹科技术</span></a>
+								<i class="split-line"></i>
+				<div class="hot-num"><i class="iconfont icon-fire"></i>2139</div>
+								<i class="split-line"></i>
+				<span class="item-normal">09/18 10:01</span>
+				<a target="_blank" rel="noopener noreferrer" class="tag"
+					href="https://www.eefocus.com/circuit/">方案</a>
+			</div>
+		</li>
+
+						<li>
+			<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1603329.html" class="item-title eefocus-jump" data-jump-url="https://www.eefocus.com/redirect?to=https%3A%2F%2Fwww.eefocus.com%2Fcircuit%2F1603329.html&amp;site=eefocus&amp;scene=detail-reco"
+				title="实时控制与智能化解决方案：Linux网关在化学品安全监控中的价值">
+				实时控制与智能化解决方案：Linux网关在化学品安全监控中的价值</a>
+			<div class="item-details">
+				<a target="_blank" href="https://www.eefocus.com/user/3877719/"
+					class="name-block user-info-card-trigger" uid="3877719">
+					
+					<span class="name">钡铼技术物联网关</span></a>
+								<i class="split-line"></i>
+				<div class="hot-num"><i class="iconfont icon-fire"></i>1861</div>
+								<i class="split-line"></i>
+				<span class="item-normal">09/12 13:49</span>
+				<a target="_blank" rel="noopener noreferrer" class="tag"
+					href="https://www.eefocus.com/circuit/">方案</a>
+			</div>
+		</li>
+
+						<li>
+			<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1602489.html" class="item-title eefocus-jump" data-jump-url="https://www.eefocus.com/redirect?to=https%3A%2F%2Fwww.eefocus.com%2Fcircuit%2F1602489.html&amp;site=eefocus&amp;scene=detail-reco"
+				title="虹科数字化AR推动工业4.0！">
+				虹科数字化AR推动工业4.0！</a>
+			<div class="item-details">
+				<a target="_blank" href="https://www.eefocus.com/user/3889479/"
+					class="name-block user-info-card-trigger" uid="3889479">
+					
+					<span class="name">虹科技术</span></a>
+								<i class="split-line"></i>
+				<div class="hot-num"><i class="iconfont icon-fire"></i>2231</div>
+								<i class="split-line"></i>
+				<span class="item-normal">09/08 13:59</span>
+				<a target="_blank" rel="noopener noreferrer" class="tag"
+					href="https://www.eefocus.com/circuit/">方案</a>
+			</div>
+		</li>
+
+						<li>
+			<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1589093.html" class="item-title eefocus-jump" data-jump-url="https://www.eefocus.com/redirect?to=https%3A%2F%2Fwww.eefocus.com%2Fcircuit%2F1589093.html&amp;site=eefocus&amp;scene=detail-reco"
+				title="走向工业4.0：NXP ARM工控机引领智能制造的未来">
+				走向工业4.0：NXP ARM工控机引领智能制造的未来</a>
+			<div class="item-details">
+				<a target="_blank" href="https://www.eefocus.com/user/3877719/"
+					class="name-block user-info-card-trigger" uid="3877719">
+					
+					<span class="name">钡铼技术物联网关</span></a>
+								<i class="split-line"></i>
+				<div class="hot-num"><i class="iconfont icon-fire"></i>2953</div>
+								<i class="split-line"></i>
+				<span class="item-normal">08/18 11:16</span>
+				<a target="_blank" rel="noopener noreferrer" class="tag"
+					href="https://www.eefocus.com/circuit/">方案</a>
+			</div>
+		</li>
+
+						<li>
+			<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1586486.html" class="item-title eefocus-jump" data-jump-url="https://www.eefocus.com/redirect?to=https%3A%2F%2Fwww.eefocus.com%2Fcircuit%2F1586486.html&amp;site=eefocus&amp;scene=detail-reco"
+				title="让 AGV 小车更聪明——基于飞凌嵌入式  FETMX8MP-C 核心板的 AGV 应用">
+				让 AGV 小车更聪明——基于飞凌嵌入式  FETMX8MP-C 核心板的 AGV 应用</a>
+			<div class="item-details">
+				<a target="_blank" href="https://www.eefocus.com/user/3877091/"
+					class="name-block user-info-card-trigger" uid="3877091">
+					
+					<span class="name">飞凌嵌入式</span></a>
+								<i class="split-line"></i>
+				<div class="hot-num"><i class="iconfont icon-fire"></i>5235</div>
+								<i class="split-line"></i>
+				<span class="item-normal">08/11 16:59</span>
+				<a target="_blank" rel="noopener noreferrer" class="tag"
+					href="https://www.eefocus.com/circuit/">方案</a>
+			</div>
+		</li>
+
+					</ul>
+</div>
+			<div class="section-details-header">
+	<div class="title">
+		<h2>电子产业图谱</h2>
+	</div>
+	<div class="action">
+		<a href="https://www.eefocus.com/industry-map/" target="_blank" class="more">查看更多<i class="iconfont icon-arrow-right-s-line"></i></a>
+	</div>
+</div>
+<div class="blueprint">
+	<ul>
+				<li>
+			<a href="https://www.eefocus.com/industry-map/mobilephone/" target="_blank" rel="noopener noreferrer">
+				<img src="https://assets.eefcdn.com/app/uploads/2022/10/1667095654-20.jpg?x-oss-process=image/resize,m_fill,w_688,h_386" alt="手机">
+				<span class="content">
+					手机
+					<p>
+						
+					</p>
+				</span>
+			</a>
+		</li>
+				<li>
+			<a href="https://www.eefocus.com/industry-map/automotive/" target="_blank" rel="noopener noreferrer">
+				<img src="https://assets.eefcdn.com/app/uploads/2022/10/1667095482-1.jpg?x-oss-process=image/resize,m_fill,w_688,h_386" alt="汽车">
+				<span class="content">
+					汽车
+					<p>
+						
+					</p>
+				</span>
+			</a>
+		</li>
+				<li>
+			<a href="https://www.eefocus.com/industry-map/industrial-robot/" target="_blank" rel="noopener noreferrer">
+				<img src="https://assets.eefcdn.com/app/uploads/2022/10/1667095344-7.jpg?x-oss-process=image/resize,m_fill,w_688,h_386" alt="工业机器人">
+				<span class="content">
+					工业机器人
+					<p>
+						
+					</p>
+				</span>
+			</a>
+		</li>
+				<li>
+			<a href="https://www.eefocus.com/industry-map/xr/" target="_blank" rel="noopener noreferrer">
+				<img src="https://assets.eefcdn.com/app/uploads/2022/10/1667095160-15.jpg?x-oss-process=image/resize,m_fill,w_688,h_386" alt="XR">
+				<span class="content">
+					XR
+					<p>
+						
+					</p>
+				</span>
+			</a>
+		</li>
+			</ul>
+</div>
+		</div>
+		<div class="section-right">
+			<div class="section-adbox ox-272x227">
+		<ins data-revive-zoneid="769" data-revive-id="938569507b5eec61bf3aa452464fb480"></ins>
+	<script async src="//gg.eefocus.com/www/delivery/asyncjs.php"></script>
+	</div>			<div class="side-gap-40"></div>
+			<div class="author-section">
+	<div class="top-part">
+		<div class="author-info">
+			<div class="author-avatar">
+								<img class="avatar" src="https://upload.semidata.info/account.eefocus.com/avatar/0344/normal/938694050f46e0948f49c7443fe8b1d4.jpg" alt="蔡宇杰">
+																			</div>
+			<a class="name" href="https://www.eefocus.com/user/3428838/" target="_blank">蔡宇杰</a>
+		</div>
+						
+		
+	</div>
+	<div class="bottom-part">
+		<div class="divider-line">
+			<div class="divider"></div>
+			<span class="title">TA的热门作品</span>
+			<div class="divider"></div>
+		</div>
+		<ul class="popular-works">
+						<li class="work-item">
+				<div class="item-left">
+					<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/course/1062339.html" class="item-theme"
+						title="Xilinx FPGA进阶教学之PCIE接口开发">Xilinx FPGA进阶教学之PCIE接口开发</a>
+					<div class="item-details">
+						
+						<span>2021/01/21</span>
+					</div>
+				</div>
+								<a class="item-right" target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/course/1062339.html">
+					<img src="https://assets.eefcdn.com/app/uploads/2021/01/3198_cover.png?x-oss-process=image/resize,m_fill,w_256,h_144" alt="Xilinx FPGA进阶教学之PCIE接口开发">
+				</a>
+							</li>
+						<li class="work-item">
+				<div class="item-left">
+					<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/course/1057545.html" class="item-theme"
+						title="神经网络加速器与SOC芯片设计（十九）-FPGA上板演示，Roofline模型与能效评估">神经网络加速器与SOC芯片设计（十九）-FPGA上板演示，Roofline模型与能效评估</a>
+					<div class="item-details">
+						
+						<span>2019/11/28</span>
+					</div>
+				</div>
+								<a class="item-right" target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/course/1057545.html">
+					<img src="https://assets.eefcdn.com/app/uploads/2019/04/2710_cover.jpg?x-oss-process=image/resize,m_fill,w_256,h_144" alt="神经网络加速器与SOC芯片设计（十九）-FPGA上板演示，Roofline模型与能效评估">
+				</a>
+							</li>
+						<li class="work-item">
+				<div class="item-left">
+					<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/course/1057538.html" class="item-theme"
+						title="神经网络加速器与SOC芯片设计（十八）">神经网络加速器与SOC芯片设计（十八）</a>
+					<div class="item-details">
+						
+						<span>2019/11/28</span>
+					</div>
+				</div>
+								<a class="item-right" target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/course/1057538.html">
+					<img src="https://assets.eefcdn.com/app/uploads/2019/04/2709_cover.jpg?x-oss-process=image/resize,m_fill,w_256,h_144" alt="神经网络加速器与SOC芯片设计（十八）">
+				</a>
+							</li>
+						<li class="work-item">
+				<div class="item-left">
+					<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/course/1057536.html" class="item-theme"
+						title="乘加器优化与卷积运算电路的架构设计——神经网络加速器与SOC芯片设计（十六）">乘加器优化与卷积运算电路的架构设计——神经网络加速器与SOC芯片设计（十六）</a>
+					<div class="item-details">
+						
+						<span>2019/11/28</span>
+					</div>
+				</div>
+								<a class="item-right" target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/course/1057536.html">
+					<img src="https://assets.eefcdn.com/app/uploads/2019/04/2708_cover.jpg?x-oss-process=image/resize,m_fill,w_256,h_144" alt="乘加器优化与卷积运算电路的架构设计——神经网络加速器与SOC芯片设计（十六）">
+				</a>
+							</li>
+						<li class="work-item">
+				<div class="item-left">
+					<a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/course/1055719.html" class="item-theme"
+						title="卷积运算的循环顺序修改与乘加器阵列映射——神经网络加速器与SOC芯片设计（十五）">卷积运算的循环顺序修改与乘加器阵列映射——神经网络加速器与SOC芯片设计（十五）</a>
+					<div class="item-details">
+						
+						<span>2019/11/28</span>
+					</div>
+				</div>
+								<a class="item-right" target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/course/1055719.html">
+					<img src="https://assets.eefcdn.com/app/uploads/2018/12/2492_cover.png?x-oss-process=image/resize,m_fill,w_256,h_144" alt="卷积运算的循环顺序修改与乘加器阵列映射——神经网络加速器与SOC芯片设计（十五）">
+				</a>
+							</li>
+					</ul>
+				<a target="_blank" class="more" href="https://www.eefocus.com/user/3428838/" rel="nofollow">查看更多
+			<i class="iconfont icon-arrow-right-s-line"></i></a>
+			</div>
+</div>
+<div id="wxmodal-box-container"></div>
+			<div id="article-rankbox-container"></div>
+			<div class="side-gap-40"></div>
+			<div class="side-adbox-float" data-sticky data-margin-top="76" data-margin-bottom="720">
+				<div class="section-adbox ox-272x544">
+		<ins data-revive-zoneid="770" data-revive-id="938569507b5eec61bf3aa452464fb480"></ins>
+	<script async src="//gg.eefocus.com/www/delivery/asyncjs.php"></script>
+	</div>			</div>
+		</div>
+	</div>
+	<div class="footer-gap"></div>
+	<div class="ad-fix">
+	<div class="ad-container">
+		<div class="section-adbox ox-708x80">
+		<ins data-revive-zoneid="759" data-revive-id="938569507b5eec61bf3aa452464fb480"></ins>
+	<script async src="//gg.eefocus.com/www/delivery/asyncjs.php"></script>
+	</div>		<div class="ad-close">
+			<i class="iconfont icon-close-line"></i>
+		</div>
+	</div>
+</div></div>
+		</div>
+	</div>
+
+	<div id="float-tool-container"></div>
+	<div id="comment-box-container"></div>
+	<div id="user-info-card-container"></div>
+	
+
+	
+	<div id="pay-confirm-box-container"></div>
+	<div id="pay-modal-box-container"></div>
+	<div id="pay-success-box-container"></div>
+
+	<ins data-eef-ad-z="eef-article-video-480x270"></ins>
+
+	<div id="footer-container">
+		<div class="recommend">
+  <div class="container">
+    <div class="panel-button">
+      <ul>
+        <li class="active">
+          <span>推荐视频</span>
+        </li>
+        <li>
+          <span>编辑推荐</span>
+        </li>
+        <li>
+          <span>热门方案</span>
+        </li>
+        <li>
+          <span>热门视频</span>
+        </li>
+        <li>
+          <span>产品</span>
+        </li>
+        <li>
+          <span>技术</span>
+        </li>
+        <li>
+          <span>企业</span>
+        </li>
+        <li>
+          <span>芯片</span>
+        </li>
+        
+      </ul>
+    </div>
+    <div class="panel-link">
+      <ul>
+        <li class="active">
+                    <span><a target="_blank" rel="noopener noreferrer" href="/video/1642048.html" title="SOP芯片出现三种宽度是怎么分？采购不要再拿错封装了">SOP芯片出现三种宽度是怎么分？采购不要再拿错封装了</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/video/1641772.html" title="米尔AM62x开发板的开箱视频，助力新一代工业4.0升级，单核1双核/四核灵活选择软硬件兼容">米尔AM62x开发板的开箱视频，助力新一代工业4.0升级，单核1双核/四核灵活选择软硬件兼容</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1591765.html" title="表面贴装0201_Size SESD器件应用说明">表面贴装0201_Size SESD器件应用说明</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/video/1638616.html" title="合作比竞争更重要！西门子Xcelerator携手新核云化解中小企业转型挑战">合作比竞争更重要！西门子Xcelerator携手新核云化解中小企业转型挑战</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/video/1627683.html" title="爱普生RTC在储能光伏等领域的应用">爱普生RTC在储能光伏等领域的应用</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/video/1636320.html" title="电子元器件退货？购买芯片时遇到的各种各样的问题">电子元器件退货？购买芯片时遇到的各种各样的问题</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1591763.html" title="SP720、SP721和SP723开关特性应用说明">SP720、SP721和SP723开关特性应用说明</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/live/1575123.html" title="第三届前湾汽车产业创新高端论坛">第三届前湾汽车产业创新高端论坛</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/video/1621963.html" title="教程：创作劈叉技能+语音调用">教程：创作劈叉技能+语音调用</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1591816.html" title="什么是RS-485？">什么是RS-485？</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1591817.html" title="具有适当电路保护的LED园艺应用设计">具有适当电路保护的LED园艺应用设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1591818.html" title="磁传感在洗碗机中的应用">磁传感在洗碗机中的应用</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1591821.html" title="Littelfuse应用说明：烤箱/炉具和抽油烟机的感应">Littelfuse应用说明：烤箱/炉具和抽油烟机的感应</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/video/1620191.html" title="宝骏云朵灵犀2.0,15w级别智能驾驶，不求遥遥领先，但求人人能用？">宝骏云朵灵犀2.0,15w级别智能驾驶，不求遥遥领先，但求人人能用？</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1591767.html" title="Littelfuse多层抑制器的基本原理">Littelfuse多层抑制器的基本原理</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1591766.html" title="表面贴装焊接建议应用说明">表面贴装焊接建议应用说明</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/course/1074133.html" title="瑞萨HS4xxx系列湿度传感器">瑞萨HS4xxx系列湿度传感器</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/video/1636320.html" title="购买芯片时遇到的各种各样的问题">购买芯片时遇到的各种各样的问题</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/video/1633321.html" title="光模块和光纤收发器的区别及应用">光模块和光纤收发器的区别及应用</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1585991.html" title="8位触摸专用微控制器KF8TS2302_08_10_14数据手册V1.4">8位触摸专用微控制器KF8TS2302_08_10_14数据手册V1.4</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/course/1554946.html" title="基于ADAS的路上行人检测技术">基于ADAS的路上行人检测技术</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1591795.html" title="TVS二极管概述应用说明">TVS二极管概述应用说明</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1591770.html" title="晶闸管基本特性、晶闸管应用说明">晶闸管基本特性、晶闸管应用说明</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1585992.html" title="8位触摸专用微控制器KF8TS2402_08_10_14数据手册V1.5">8位触摸专用微控制器KF8TS2402_08_10_14数据手册V1.5</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/course/1455586.html" title="什么是低代码？">什么是低代码？</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1585994.html" title="8位微控制器KF8TS2508_2510_2514数据手册V1.8">8位微控制器KF8TS2508_2510_2514数据手册V1.8</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/live/1617056.html" title="第二届AI机器人技术论坛">第二届AI机器人技术论坛</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1585956.html" title="KF8F312-Demo 例程详细说明 程序使用说明">KF8F312-Demo 例程详细说明 程序使用说明</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1585990.html" title="32位微控制器KF32L530数据手册V3.1">32位微控制器KF32L530数据手册V3.1</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1591825.html" title="IXYS功率半导体SIC GDEV1应用说明">IXYS功率半导体SIC GDEV1应用说明</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1585970.html" title="8位微控制器KF8F312数据手册V2.2">8位微控制器KF8F312数据手册V2.2</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/video/1631399.html" title="国产数字EDA的现状分析与策略思考">国产数字EDA的现状分析与策略思考</a></span>
+                  </li>
+        <li>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/circuit/1637311.html" title="热门四轴飞行器电路方案设计">热门四轴飞行器电路方案设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/circuit/1634646.html" title="电子设计竞赛热门电路方案合集整理">电子设计竞赛热门电路方案合集整理</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1591796.html" title="VFDs IGBT逆变器的TVS二极管保护">VFDs IGBT逆变器的TVS二极管保护</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/circuit/1615878.html" title="机智云自动联网灌溉系统毕业设计课程作业原理图">机智云自动联网灌溉系统毕业设计课程作业原理图</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1591815.html" title="应用说明：磁传感器在干衣机中的应用">应用说明：磁传感器在干衣机中的应用</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/circuit/1615885.html" title="基于STM32单片机的多功能坐姿矫正智能台灯毕业设计课程设计">基于STM32单片机的多功能坐姿矫正智能台灯毕业设计课程设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/circuit/1637297.html" title="热门DIY自制电路设计分享">热门DIY自制电路设计分享</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1591805.html" title="Littelfuse压敏电阻的基本特性、术语和理论">Littelfuse压敏电阻的基本特性、术语和理论</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/circuit/1615890.html" title="基于单片机的虫害防治系统手机app上传报警设计（带模型）毕业设计">基于单片机的虫害防治系统手机app上传报警设计（带模型）毕业设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/circuit/1189072.html" title="基于树莓派的水位监视器">基于树莓派的水位监视器</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/circuit/1615904.html" title="男声女声变声器设计毕业设计">男声女声变声器设计毕业设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/circuit/1634748.html" title="热门电路设计-PCB封装资料/电路方案">热门电路设计-PCB封装资料/电路方案</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1591810.html" title="Littelfuse在功率半导体模块中的热监测应用说明">Littelfuse在功率半导体模块中的热监测应用说明</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1591809.html" title="无线网络基站交流和直流电源线电路保护">无线网络基站交流和直流电源线电路保护</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://cn.supplyframe.com/article/4300.html" title="四方维和中国传感器与物联网产业联盟达成战略合作">四方维和中国传感器与物联网产业联盟达成战略合作</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1591813.html" title="使用适当的电路保护设计可靠的无人机">使用适当的电路保护设计可靠的无人机</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/circuit/1615915.html" title="太阳能供电便携式PM2.5检测设备竞赛设计">太阳能供电便携式PM2.5检测设备竞赛设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1591799.html" title="单向与双向保护">单向与双向保护</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/circuit/1615917.html" title="无人车库计费管理系统设计毕业设计">无人车库计费管理系统设计毕业设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/circuit/1636364.html" title="智能循迹小车电路设计方案">智能循迹小车电路设计方案</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/circuit/1615921.html" title="无线烟雾检测报警断电控制器电子DIY作品设计">无线烟雾检测报警断电控制器电子DIY作品设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/circuit/1636359.html" title="智能家居控制系统电路方案设计集锦">智能家居控制系统电路方案设计集锦</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/circuit/1585811.html" title="水库除险加固监测预警解决方案 网关型RTU水利遥测终端应用">水库除险加固监测预警解决方案 网关型RTU水利遥测终端应用</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1591801.html" title="硬盘驱动器的USB2.0和USB3.0电路保护注意事项">硬盘驱动器的USB2.0和USB3.0电路保护注意事项</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/circuit/1615930.html" title="智能运动手环设计（带APP）通讯专业竞赛设计">智能运动手环设计（带APP）通讯专业竞赛设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/circuit/1635759.html" title="热门电路设计-医疗电子电路方案/资料">热门电路设计-医疗电子电路方案/资料</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/circuit/1615760.html" title="翻身次数和呼吸次数检测睡眠质量上传APP毕业设计作品实物">翻身次数和呼吸次数检测睡眠质量上传APP毕业设计作品实物</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/circuit/1634673.html" title="便捷灵活、方便上手的Arduino电路方案">便捷灵活、方便上手的Arduino电路方案</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/circuit/1615751.html" title="WIFI水箱自动化管理系统竞赛设计原理图源码">WIFI水箱自动化管理系统竞赛设计原理图源码</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/circuit/1619667.html" title="带图腾柱交错式PFC的数字功率转换">带图腾柱交错式PFC的数字功率转换</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/document/1591804.html" title="Littelfuse压敏电阻设计实例">Littelfuse压敏电阻设计实例</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://cn.supplyframe.com/success-story/" title="四方维客户案例">四方维客户案例</a></span>
+                  </li>
+        <li>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1615930.html" title="智能运动手环设计（带APP）通讯专业竞赛设计">智能运动手环设计（带APP）通讯专业竞赛设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1615883.html" title="基于AD620高精度仪表放大器小信号放大毕业作品电路图设计">基于AD620高精度仪表放大器小信号放大毕业作品电路图设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1615892.html" title="基于模糊控制的智能降温风扇设计与实现毕业设计">基于模糊控制的智能降温风扇设计与实现毕业设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1634748.html" title="热门电路设计-PCB封装资料/电路方案">热门电路设计-PCB封装资料/电路方案</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1633531.html" title="基于STM32单片机车牌识别摄像头图像处理扫描设计">基于STM32单片机车牌识别摄像头图像处理扫描设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1615878.html" title="机智云自动联网灌溉系统毕业设计课程作业原理图">机智云自动联网灌溉系统毕业设计课程作业原理图</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1618694.html" title="基于STM32的4串BMS电池管理系统设计实物">基于STM32的4串BMS电池管理系统设计实物</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1615887.html" title="基于STM32单片机甲醛浓度检测系统课程设计">基于STM32单片机甲醛浓度检测系统课程设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1615885.html" title="基于STM32单片机的多功能坐姿矫正智能台灯毕业设计课程设计">基于STM32单片机的多功能坐姿矫正智能台灯毕业设计课程设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1619667.html" title="带图腾柱交错式PFC的数字功率转换">带图腾柱交错式PFC的数字功率转换</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1618733.html" title="基于单片机的车内人员安全监测系统毕业设计作品">基于单片机的车内人员安全监测系统毕业设计作品</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1618675.html" title="基于GPS的老人跌倒报警单片机实物作品设计">基于GPS的老人跌倒报警单片机实物作品设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1618697.html" title="基于STM32的便携式电脉冲理疗仪毕业设计作品实物">基于STM32的便携式电脉冲理疗仪毕业设计作品实物</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1638528.html" title="基于51单片机智能土壤湿度自动浇花浇水灌溉系统空气温湿度检测报警设计">基于51单片机智能土壤湿度自动浇花浇水灌溉系统空气温湿度检测报警设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1615753.html" title="潮汐车道一体化监控系统毕业设计作品设计">潮汐车道一体化监控系统毕业设计作品设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/document/1591476.html" title="FPGA-to-ASIC 转换参考手册">FPGA-to-ASIC 转换参考手册</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1635759.html" title="热门电路设计-医疗电子电路方案/资料">热门电路设计-医疗电子电路方案/资料</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1630146.html" title="基于51单片机PID算法电机调速系统设计">基于51单片机PID算法电机调速系统设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1618160.html" title="FP7195芯片双色转模拟调光应用：磁吸灯">FP7195芯片双色转模拟调光应用：磁吸灯</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/document/1591466.html" title="开关电源参考手册">开关电源参考手册</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1634000.html" title="基于STM32单片机指纹考勤机指纹识别签到系统设计">基于STM32单片机指纹考勤机指纹识别签到系统设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1618730.html" title="基于单片机的GPS逐日太阳能充电设备毕业设计作品">基于单片机的GPS逐日太阳能充电设备毕业设计作品</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1615890.html" title="基于单片机的虫害防治系统手机app上传报警设计（带模型）毕业设计">基于单片机的虫害防治系统手机app上传报警设计（带模型）毕业设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1618588.html" title="升压芯片FP6277在电剪中的应用/PCB及锂电电推剪完整方案">升压芯片FP6277在电剪中的应用/PCB及锂电电推剪完整方案</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/document/1591797.html" title="TVS二极管SAD硅雪崩二极管应用说明">TVS二极管SAD硅雪崩二极管应用说明</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/document/1591811.html" title="了解Littelfuse点火IGBT数据表">了解Littelfuse点火IGBT数据表</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1618707.html" title="基于WIFI的人体感应垃圾桶毕业设计">基于WIFI的人体感应垃圾桶毕业设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1618691.html" title="基于PT100的高精度温度采集系统设计课程作业作品">基于PT100的高精度温度采集系统设计课程作业作品</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1615917.html" title="无人车库计费管理系统设计毕业设计">无人车库计费管理系统设计毕业设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1629981.html" title="基于51单片机PID算法温度控制系统设计">基于51单片机PID算法温度控制系统设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1608369.html" title="CS5366国产2lane 4K60HZ TypeC转HDMI带HUB扩展方案应用电路">CS5366国产2lane 4K60HZ TypeC转HDMI带HUB扩展方案应用电路</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/circuit/1618727.html" title="基于单片机的485三相电表通讯自动化专业毕业设计作品">基于单片机的485三相电表通讯自动化专业毕业设计作品</a></span>
+                  </li>
+        <li>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/live/1635751.html" title="爆款拆解：多传伺服电机驱动内部结构的奥秘">爆款拆解：多传伺服电机驱动内部结构的奥秘</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/course/1632021.html" title="CMW500射频测试指南">CMW500射频测试指南</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/video/1635614.html" title="对话工程师EP9：小型化电源设计的技术突破和挑战">对话工程师EP9：小型化电源设计的技术突破和挑战</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/video/1632280.html" title="芯片托盘没选对反而损坏芯片？IC托盘应该这样选？">芯片托盘没选对反而损坏芯片？IC托盘应该这样选？</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/video/1636028.html" title="智己Ls6值得吗？800V有啥用？">智己Ls6值得吗？800V有啥用？</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/video/1636320.html" title="电子元器件退货？购买芯片时遇到的各种各样的问题">电子元器件退货？购买芯片时遇到的各种各样的问题</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/video/1635227.html" title="QFP跟LQFP还有TQFP的区别看实物视频一目了然，QFN跟LGA容易搞混">QFP跟LQFP还有TQFP的区别看实物视频一目了然，QFN跟LGA容易搞混</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/video/1638016.html" title="好端端的芯片怎么就翘曲且金线断裂，还有产生裂缝，成爆米花啦？">好端端的芯片怎么就翘曲且金线断裂，还有产生裂缝，成爆米花啦？</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/video/1638616.html" title="合作比竞争更重要！西门子Xcelerator携手新核云化解中小企业转型挑战">合作比竞争更重要！西门子Xcelerator携手新核云化解中小企业转型挑战</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/video/1633599.html" title="中国车企，如何抢滩登陆东南亚？机遇与挑战并存，面对崭新市场，都有哪些不同？">中国车企，如何抢滩登陆东南亚？机遇与挑战并存，面对崭新市场，都有哪些不同？</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/video/1633321.html" title="光模块和光纤收发器的区别及应用">光模块和光纤收发器的区别及应用</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/video/1638626.html" title="快来看，进博会上拧魔方机器人背后的故事#西门子Xcelerator繁星计划">快来看，进博会上拧魔方机器人背后的故事#西门子Xcelerator繁星计划</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/video/1637664.html" title="100G BIDI 系列光模块知识大全">100G BIDI 系列光模块知识大全</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/video/1638629.html" title="为低碳而行！西门子Smart ECX智慧能碳管理平台">为低碳而行！西门子Smart ECX智慧能碳管理平台</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/video/1638617.html" title="回顾西门子Xcelerator落地中国一周年">回顾西门子Xcelerator落地中国一周年</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/video/1638623.html" title="探索低碳! SIGREEN生态全链条绿色低碳创新服务">探索低碳! SIGREEN生态全链条绿色低碳创新服务</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/video/1638633.html" title="让数字化触手可及！工易魔方Workflow Canvas">让数字化触手可及！工易魔方Workflow Canvas</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/video/1638582.html" title="揭秘银河E8 ，全面对标比亚迪汉？">揭秘银河E8 ，全面对标比亚迪汉？</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/video/1641772.html" title="米尔AM62x开发板的开箱视频，助力新一代工业4.0升级，单核1双核/四核灵活选择软硬件兼容">米尔AM62x开发板的开箱视频，助力新一代工业4.0升级，单核1双核/四核灵活选择软硬件兼容</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.eefocus.com/video/1642048.html" title="SOP芯片出现三种宽度是怎么分？采购不要再拿错封装了">SOP芯片出现三种宽度是怎么分？采购不要再拿错封装了</a></span>
+                  </li>
+        <li>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/106.html" title="32电子时钟温湿度设计">32电子时钟温湿度设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/102.html" title="32单片机的超声波测距设计">32单片机的超声波测距设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/123.html" title="3d打印机电路设计系统方案">3d打印机电路设计系统方案</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/125.html" title="3KW单相逆变器设计">3KW单相逆变器设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/212.html" title="51单片机八音盒课题设计">51单片机八音盒课题设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/219.html" title="51单片机十六键电子琴设计方案">51单片机十六键电子琴设计方案</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/228.html" title="51单片机土壤湿度检测设计">51单片机土壤湿度检测设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/240.html" title="51单片机实验彩灯控制器设计">51单片机实验彩灯控制器设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/250.html" title="51单片机心形流水灯电路设计方案">51单片机心形流水灯电路设计方案</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/270.html" title="51单片机数字电子时钟电路设计方案">51单片机数字电子时钟电路设计方案</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/290.html" title="51单片机智能电饭煲系统设计">51单片机智能电饭煲系统设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/295.html" title="51单片机智能风扇设计">51单片机智能风扇设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/315.html" title="51单片机烟雾报警器">51单片机烟雾报警器</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/421.html" title="51自动售货机毕业设计课程">51自动售货机毕业设计课程</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/424.html" title="51酒精浓度检测仪的项目设计">51酒精浓度检测仪的项目设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/429.html" title="555多谐振荡方案设计">555多谐振荡方案设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/432.html" title="555触摸延时开关设计方案">555触摸延时开关设计方案</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/447.html" title="60w反激式开关电源设计">60w反激式开关电源设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/477.html" title="8路彩灯控制器设计仿真">8路彩灯控制器设计仿真</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/487.html" title="AD7606采样模块设计">AD7606采样模块设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/517.html" title="AD模数转换电路设计">AD模数转换电路设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/533.html" title="android蓝牙语音遥控方案设计">android蓝牙语音遥控方案设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/543.html" title="arduino升降平台设计">arduino升降平台设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/563.html" title="Arduino智能闹钟设计">Arduino智能闹钟设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/583.html" title="Arduino自动浇花系统设计">Arduino自动浇花系统设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/593.html" title="Arduino高压电源设计">Arduino高压电源设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/643.html" title="BLDC无刷电机驱动电路设计">BLDC无刷电机驱动电路设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/693.html" title="cc2530核心板电路设计">cc2530核心板电路设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/743.html" title="DIY键盘电路方案">DIY键盘电路方案</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/797.html" title="esp32蓝牙硬件设计">esp32蓝牙硬件设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/1919.html" title="便携式紫外线消毒器电路设计">便携式紫外线消毒器电路设计</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://kb.eefocus.com/2919.html" title="基于stm32的智能药箱毕业设计">基于stm32的智能药箱毕业设计</a></span>
+                  </li>
+        <li>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/智能驾驶/" title="智能驾驶">智能驾驶</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/继电器/" title="继电器">继电器</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/ADAS/" title="ADAS">ADAS</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/RISC-V/" title="RISC-V">RISC-V</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/oled/" title="oled">oled</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/arduino/" title="arduino">arduino</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/压敏电阻/" title="压敏电阻">压敏电阻</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/云计算/" title="云计算">云计算</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/数据中心/" title="数据中心">数据中心</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/动力电池/" title="动力电池">动力电池</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/CPU/" title="CPU">CPU</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/DIY制作/" title="DIY制作">DIY制作</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/GPU/" title="GPU">GPU</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/智能手机/" title="智能手机">智能手机</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/电路设计方案/" title="电路设计方案">电路设计方案</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/智能家居/" title="智能家居">智能家居</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/mcu/" title="mcu">mcu</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/fpga/" title="fpga">fpga</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/单片机/" title="单片机">单片机</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/集成电路/" title="集成电路">集成电路</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/电池/" title="电池">电池</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/电动汽车/" title="电动汽车">电动汽车</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/新能源汽车/" title="新能源汽车">新能源汽车</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/AI/" title="AI">AI</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/芯片/" title="芯片">芯片</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/半导体/" title="半导体">半导体</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/51单片机/" title="51单片机">51单片机</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/人工智能/" title="人工智能">人工智能</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/5G/" title="5G">5G</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/自动驾驶/" title="自动驾驶">自动驾驶</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/物联网/" title="物联网">物联网</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/传感器/" title="传感器">传感器</a></span>
+                  </li>
+        <li>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/manufacturer/1000379/" title="辉创电子">辉创电子</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/manufacturer/1536722/" title="帝奥微电子有限公司">帝奥微电子有限公司</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/manufacturer/1001630" title="泰斗微电子">泰斗微电子</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/manufacturer/1392976/" title="能可瑞">能可瑞</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/manufacturer/1535377/" title="欧陆通">欧陆通</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/manufacturer/1538625/" title="科纳森">科纳森</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/manufacturer/1000860/" title="中电科38所">中电科38所</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/汉芯/" title="汉芯">汉芯</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/manufacturer/1000219/" title="瑞萨电子">瑞萨电子</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/manufacturer/1000180/" title="西门子">西门子</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/芯动科技/" title="芯动科技">芯动科技</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/赛普拉斯/" title="赛普拉斯">赛普拉斯</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/赛门铁克/" title="赛门铁克">赛门铁克</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/manufacturer/1000965/" title="艾迈斯欧司朗">艾迈斯欧司朗</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/康宁公司/" title="康宁公司">康宁公司</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/天数智芯/" title="天数智芯">天数智芯</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/美光/" title="美光">美光</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/manufacturer/1000224/" title="英飞凌">英飞凌</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/arm/" title="arm">arm</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/福建晋华/" title="福建晋华">福建晋华</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/戴姆勒/" title="戴姆勒">戴姆勒</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/贸泽电子/" title="贸泽电子">贸泽电子</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/鸿海集团/" title="鸿海集团">鸿海集团</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/manufacturer/1000026/" title="华为">华为</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/云天励飞/" title="云天励飞">云天励飞</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/manufacturer/1000203/" title="英特尔">英特尔</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/安世半导体/" title="安世半导体">安世半导体</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/SK海力士/" title="SK海力士">SK海力士</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/tag/Bourns/" title="Bourns">Bourns</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/manufacturer/1000215/" title="恩智浦">恩智浦</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/manufacturer/1000324/" title="罗姆">罗姆</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="/manufacturer/1000838/" title="QORVO">QORVO</a></span>
+                  </li>
+        <li>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/ff600r12me4/" title="ff600r12me4">ff600r12me4</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/LM399/" title="LM399">LM399</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/CD4046/" title="CD4046">CD4046</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/IEEE1394/" title="IEEE1394">IEEE1394</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/MPU6050/" title="MPU6050">MPU6050</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/S3C2440/" title="S3C2440">S3C2440</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/ULN2003/" title="ULN2003">ULN2003</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/74HC164/" title="74HC164">74HC164</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/S9012/" title="S9012">S9012</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/VIPER12A/" title="VIPER12A">VIPER12A</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/MAX232/" title="MAX232">MAX232</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/NE555/" title="NE555">NE555</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/MSP430/" title="MSP430">MSP430</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/DS1302/" title="DS1302">DS1302</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/LM2576/" title="LM2576">LM2576</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/1602A/" title="1602A">1602A</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/AMS1117/" title="AMS1117">AMS1117</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/BISS0001/" title="BISS0001">BISS0001</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/PT2262/" title="PT2262">PT2262</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/DSP2812/" title="DSP2812">DSP2812</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/89C51/" title="89C51">89C51</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/LCD1602/" title="LCD1602">LCD1602</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/LM317/" title="LM317">LM317</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/NE5532/" title="NE5532">NE5532</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/74LS244/" title="74LS244">74LS244</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/LM3886/" title="LM3886">LM3886</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/MC34063/" title="MC34063">MC34063</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/AT89S52/" title="AT89S52">AT89S52</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/LM324/" title="LM324">LM324</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/RS485/" title="RS485">RS485</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/74LS48/" title="74LS48">74LS48</a></span>
+                    <span><a target="_blank" rel="noopener noreferrer" href="https://www.bom2buy.com/partIntelligence/STM32F103/" title="STM32F103">STM32F103</a></span>
+                  </li>
+      </ul>
+    </div>
+  </div>
+</div>
+		<div  class="footer-copyright not-home" >
+	<div class="container">
+		<div class="link-content">
+			<dl>
+				<dt>企业社区</dt>
+				<dd>
+					<a target="_blank" rel="nofollow"
+						href="https://ams.eefocus.com/?utm_source=eefocus&utm_medium=referral&utm_campaign=footer">ams OSRAM中文社区</a>
+				</dd>
+				<dd>
+					<a target="_blank" rel="nofollow"
+						href="https://rf.eefocus.com/?utm_source=eefocus&utm_medium=referral&utm_campaign=footer">RF中文社区</a>
+				</dd>
+				<dd>
+					<a target="_blank" rel="nofollow"
+						href="https://rohm.eefocus.com/?utm_source=eefocus&utm_medium=referral&utm_campaign=footer">ROHM技术社区</a>
+				</dd>
+				<dd>
+					<a target="_blank" rel="nofollow"
+						href="https://www.nxpic.org.cn/?utm_source=eefocus&utm_medium=referral&utm_campaign=footer">恩智浦技术社区</a>
+				</dd>
+				<dd>
+					<a target="_blank" rel="nofollow"
+						href="https://shequ.stmicroelectronics.cn/?utm_source=eefocus&utm_medium=referral&utm_campaign=footer">ST中文论坛</a>
+				</dd>
+			</dl>
+			<dl>
+				<dt>产品矩阵</dt>
+				<dd>
+					<a target="_blank"
+						href="https://www.datasheet5.com/?utm_source=eefocus&utm_medium=referral&utm_campaign=footer"
+						rel="nofollow">Datasheet5</a>
+				</dd>
+				<dd>
+					<a target="_blank" href="https://www.bom2buy.com/?utm_source=eefocus&utm_medium=referral&utm_campaign=footer"
+						rel="nofollow">bom2buy</a>
+				</dd>
+				<dd>
+					<a target="_blank"
+						href="https://www.bom2buy.com/xq?utm_source=eefocus&utm_medium=referral&utm_campaign=footer"
+						rel="nofollow">Supplyframe XQ</a>
+				</dd>
+				<dd>
+					<a target="_blank"
+						href="https://cn.supplyframe.com/saas/ciq/?utm_source=eefocus&utm_medium=referral&utm_campaign=footer"
+						rel="nofollow">Supplyframe CIQ</a>
+				</dd>
+			</dl>
+			<dl>
+				<dt>特色服务</dt>
+				<dd>
+					<a target="_blank" href="https://www.eefocus.com/industry-map/" rel="nofollow">产业图谱</a>
+				</dd>
+				<dd>
+					<a target="_blank" href="/account/application" rel="nofollow">成为与非星</a>
+				</dd>
+				<dd>
+					<a target="_blank" href="/account/application" rel="nofollow">企业入驻</a>
+				</dd>
+				<dd>
+					<a target="_blank" href="/page/OnlineService/" rel="nofollow">客户服务</a>
+				</dd>
+				<dd>
+					<a target="_blank" href="/page/cooperation/" rel="nofollow">内容合作</a>
+				</dd>
+				<dd>
+					<a target="_blank" href="/newsletter/" rel="nofollow">电子新闻信</a>
+				</dd>
+			</dl>
+			<dl>
+				<dt>关于我们</dt>
+				<dd>
+					<a target="_blank" href="/about_us/">公司介绍</a>
+				</dd>
+				<dd>
+					<a target="_blank" href="/page/contact/">联系我们</a>
+				</dd>
+				<dd>
+					<a target="_blank" href="/page/eefocushr/">加入我们</a>
+				</dd>
+				<dd>
+					<a target="_blank" href="/page/user-agreement/">用户使用协议</a>
+				</dd>
+				<dd>
+					<a target="_blank" href="/page/sitemap/">网站地图</a>
+				</dd>
+			</dl>
+			<dl>
+				<dt>集团旗下</dt>
+				<dd>
+					<a target="_blank"
+						href="https://cn.supplyframe.com/saas/designsense/?utm_source=eefocus&utm_medium=referral&utm_campaign=footer"
+						rel="nofollow">Supplyframe DesignSense</a>
+				</dd>
+				<dd>
+					<a target="_blank"
+						href="https://cn.supplyframe.com/saas/ciq/?utm_source=eefocus&utm_medium=referral&utm_campaign=footer"
+						rel="nofollow">Supplyframe Commodity IQ</a>
+				</dd>
+				<dd>
+					<a target="_blank"
+						href="https://cn.supplyframe.com/saas/directsource/?utm_source=eefocus&utm_medium=referral&utm_campaign=footer"
+						rel="nofollow">Supplyframe DirectSource</a>
+				</dd>
+				<dd>
+					<a target="_blank"
+						href="https://www.supplyframe.com/for-suppliers-distributors/#supplyframe_cpq?utm_source=eefocus&utm_medium=referral&utm_campaign=footer"
+						rel="nofollow">Supplyframe CPQ</a>
+				</dd>
+				<dd>
+					<a target="_blank" href="http://www.oemstrade.com/?utm_source=eefocus&utm_medium=referral&utm_campaign=footer"
+						rel="nofollow">OEMsTRADE</a>
+				</dd>
+				<dd>
+					<a target="_blank" href="https://www.samacsys.com/?utm_source=eefocus&utm_medium=referral&utm_campaign=footer"
+						rel="nofollow">Samacsys</a>
+				</dd>
+				<dd>
+					<a target="_blank" href="https://hackaday.io/?utm_source=eefocus&utm_medium=referral&utm_campaign=footer"
+						rel="nofollow">Hackaday</a>
+				</dd>
+			</dl>
+		</div>
+		<div class="reserved">
+			<p class="reserved-logo">
+				<a target="_blank" href="/" rel="noopener noreferrer">
+					<img src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/logo-eefocus-white.svg" alt="">
+				</a>
+				<a target="_blank" href="https://cn.supplyframe.com/" rel="noopener noreferrer">
+					<img src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/logo-supplyframe-white.svg" alt="">
+				</a>
+			</p>
+			<div class="reserved-main">
+				<div class="left-part">
+					<p class="reserved-info">© 2010 - 2023 苏州灵动帧格网络科技有限公司 版权所有</p>
+					<p class="reserved-icp">ICP经营许可证 苏B2-20140176 | <a target="_blank" href="https://beian.miit.gov.cn/"
+							rel="nofollow">苏ICP备14012660号-6</a> | <a target="_blank"
+							href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=32059002001874" rel="nofollow">苏公网安备
+							32059002001874号</a></p>
+				</div>
+				<a class="right-part"
+					href="https://zzlz.gsxt.gov.cn/businessCheck/verifKey.do?showType=p&serial=91320594091520764E-SAIC_SHOW_10000091320594091520764E1663145436994&signData=MEYCIQDBxBUTVbhLK1tIcl8r7tsu0kr+zM5v260WJhlQQRpvfAIhANU6YiiwxYNEf2s8uoCzDNqfQ49ejkxPbyp6rsBM4r1p"
+					target="_blank">
+					<img src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/business-license.png" alt="">
+				</a>
+			</div>
+		</div>
+		<ul  class="footer-qrcode" >
+			<li>
+				<div class="float-box-padding">
+					<div class="qrcode-container">
+						<div>
+							<img src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/followus.jpeg" alt="">
+							<span>扫码关注<br>获取工程师必备礼包<br>板卡试用/精品课</span>
+						</div>
+					</div>
+				</div>
+				<div class="footer-qrcode-item">
+					<span class="icon">
+						<i class="iconfont icon-wechat-fill"></i>
+					</span>
+					<span class="name">公众号</span>
+				</div>
+			</li>
+			<li>
+				<div class="float-box-padding">
+					<div class="qrcode-container">
+						<div>
+							<img src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/officalGroup.png" alt="">
+							<span>扫码加入<br>获取工程师必备礼包<br>参与热点资讯讨论</span>
+						</div>
+					</div>
+				</div>
+				<div class="footer-qrcode-item">
+					<span class="icon">
+						<i class="iconfont icon-chat-smile-2-fill"></i>
+					</span>
+					<span class="name">官方群</span>
+				</div>
+			</li>
+			<li>
+				<div class="float-box-padding xiaochengxu">
+					<div class="qrcode-container">
+						<div>
+							<img src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/weapp-ee-assistant.png" alt="电子硬件助手" />
+							<span>电子硬件助手</span>
+						</div>
+						<div>
+							<img src="https://assets.eefcdn.com/app/themes/eefocus/dist/images/weapp-part-tool.png" alt="元器件查询" />
+							<span>元器件查询</span>
+						</div>
+					</div>
+				</div>
+				<div class="footer-qrcode-item">
+					<span class="icon">
+						<i class="iconfont icon-ico-xiaochengxu"></i>
+					</span>
+					<span class="name">小程序</span>
+				</div>
+			</li>
+		</ul>
+			</div>
+</div></div>
+	
+	<script src="https://assets.eefcdn.com/app/themes/eefocus/dist/libs/layui/layui-2.7.6.js"></script>
+	<script src="https://static.semidata.info/www.eefocus.com/js/video.min.js"></script>
+
+	<script>
+		window.loginUrl = "/wp-login.php?redirect_to=https%3A%2F%2Fwww.eefocus.com%2Fcourse%2F1057545.html";
+		window.device = {
+			isMobile: false,
+			enable_alipay: "0",
+			enable_wechat: "1",
+		}
+	</script>
+
+		<script>
+	window.globalConfig = {
+		id: "1057545",
+		post_type: "eef_pt_course",
+		zanNum: "1",
+		commentNum: "7",
+		isLiked: false,
+    playerUrl: "https://www.eefocus.com/api/posts/1057545/player-url?lesson=1",
+		leadId: '522',
+		leadUrl: '//main.eefocus.com/surveys/522?source=www.eefocus.com&amp;uid=0&amp;redirect=https://www.eefocus.com/pi-form-return&amp;token=a031d5ccee0dddf5854b900fd98bab24&amp;time=1701041607&amp;type=iframe',
+		surveyFinished: parseInt('0'),
+		level: parseInt('1'),
+		isFree: parseInt('0'),
+		payInfo: {
+			title: "神经网络加速器与SOC芯片设计（十九）-FPGA上板演示，Roofline模型与能效评估",
+			price: "49",
+			hasPaidOrder: "",
+			isPurchased: "",
+			hasBom: parseInt('0'),
+			src: "https://assets.eefcdn.com/app/uploads/2019/04/2710_cover.jpg?x-oss-process=image/resize,m_fill,w_100,h_100",
+			hasPlaceOrder: false,
+			orderPrice: ""
+		},
+		lessonNo: "1",
+		bom_leadUrl: '',
+		bom_surveyFinished: '0',
+	};
+	var mediaData = '';
+	var techSupport = ''
+</script>
+	
+	<!--jing track-->
+<script type="text/javascript">
+if ( window.location == window.parent.location ) {
+    if (window.location.host.includes('m.eefocus.com')) {
+        (function (i, s, o, g, r, a, m) {
+          i['JingAnalyticsObject'] = r;
+          i[r] = i[r] || function () {
+            (i[r].q = i[r].q || []).push(arguments)
+          };
+          a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0];
+          a.async = 1;
+          a.src = g;
+          a.onload = function () {
+            jing_track();
+          };
+          m.parentNode.insertBefore(a, m);
+        })(window, document, "script", "https://appcdn.jingsocial.com/js/trak-app-v4.2.1.js", "jingTrack");
+        jingTrack({
+          appId: "wx96c9b1cfe0066b6b",
+          category: "JING-99d824fe9",
+          openId: "",
+          userId: "",
+          componentId: "wx4872c0fc3e02785c",
+          stopTracking: true,
+          stopTrackingPageView: false,
+          stopOauthGetOpenId: false,
+          unTrackId: []
+        });
+    } else {
+        (function (i, s, o, g, r, a, m) {
+          i['JingAnalyticsObject'] = r;
+          i[r] = i[r] || function () {
+            (i[r].q = i[r].q || []).push(arguments)
+          };
+          a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0];
+          a.async = 1;
+          a.src = g;
+          a.onload = function () {
+            jing_track();
+          };
+          m.parentNode.insertBefore(a, m);
+        })(window, document, "script", "https://appcdn.jingsocial.com/js/trak-app-v4.2.1.js", "jingTrack");
+        jingTrack({
+          appId: "wx96c9b1cfe0066b6b",
+          category: "JING-3ed9a6c07",
+          openId: "",
+          userId: "",
+          componentId: "wx4872c0fc3e02785c",
+          stopTracking: true,
+          stopTrackingPageView: false,
+          stopOauthGetOpenId: false,
+          unTrackId: []
+        });
+    }
+}
+
+</script>
+<!--end jing track-->  <script type='text/javascript'>
+  var ox_u = '//gg.eefocus.com/www/delivery/al.php?zoneid=339&target=_blank&layerstyle=simple&align=center&valign=middle&padding=2&closetime=8&shifth=0&shiftv=0&closebutton=t&backcolor=FFFFFF&bordercolor=000000';
+  if (document.context) ox_u += '&context=' + escape(document.context);
+  document.write("<scr"+"ipt type='text/javascript' src='" + ox_u + "'></scr"+"ipt>");
+  </script>
+<script src="https://file.eefcdn.com/campaign/eefocus/js/eefads.module.js"></script><script src='https://assets.eefcdn.com/app/themes/eefocus/dist/js/app.c28d69be.js' id='entrys/course/index/0-js'></script>
+<script src='https://assets.eefcdn.com/app/themes/eefocus/dist/js/vendor.dea68cc5.js' id='entrys/course/index/1-js'></script>
+<script src='https://assets.eefcdn.com/app/themes/eefocus/dist/js/entrys/course/index.e93ba6cc.js' id='entrys/course/index/2-js'></script>
+		<script type="text/javascript">
+		jQuery( document ).ready( function( $ ) {
+			$.post(
+				"https://www.eefocus.com/api/posts/1057545/views",
+				{},
+				function (response) {
+					// console.log(response);
+				}
+			);
+
+			var jumpAnchors = document.querySelectorAll('a.eefocus-jump');
+				[].forEach.call(jumpAnchors,function (el, idx) {
+						const jumpUrl = el.getAttribute('data-jump-url');
+						if (jumpUrl !== null) {
+								const jumpFunc = function (e) {
+										e = e || window.event;
+										const jumpTarget = this.getAttribute('target');
+										const traceJump = this.getAttribute('data-trace-jump');
+										if (traceJump) {
+												console.log(`Jump to ${jumpUrl}`);
+										}
+										if (jumpTarget === '_blank') {
+												window.open(jumpUrl);
+										} else {
+												window.location.href = jumpUrl;
+										}
+										if (e.preventDefault) {
+												e.preventDefault();
+										} else {
+												e.returnValue = false;
+										}
+								}
+								if (el.addEventListener) {
+										el.addEventListener('click', jumpFunc);
+								} else if (el.attachEvent) {
+										el.attachEvent('onclick', jumpFunc);
+								}
+						}
+				});
+		});
+	</script>
+				<script type="application/ld+json">
+		{
+			"@context": "https://ziyuan.baidu.com/contexts/cambrian.jsonld",
+			"@id": "https://www.eefocus.com/course/1057545.html",
+			"appid": "1581674324204937",
+			"title": "神经网络加速器与SOC芯片设计（十九）-FPGA上板演示，Roofline模型与能效评估_教程视频- 与非网",
+			"description": "",
+						"images": [
+    "http://www.moore8.com/uploads/images/course/2468/ue/image1546048995.png",
+    "http://www.moore8.com/uploads/images/course/2359/ue/image1540287494.png",
+    "http://www.moore8.com/uploads/images/course/2376/ue/image1540805385.jpg"
+],
+						"pubDate": "2019-11-28T10:53:56",
+			"upDate": "2019-11-28T10:53:56"
+		}
+	</script>
+		</body>
+
+</html>
